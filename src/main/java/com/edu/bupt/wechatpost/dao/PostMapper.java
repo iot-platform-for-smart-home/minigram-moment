@@ -16,13 +16,11 @@ public interface PostMapper {
 
     List<Post> selectByPrimaryKeySelective(String searchText);
 
-    List<Post> findAll(Integer page);
-
-    List<Post> findAllByOpenId(@Param("openId") String openId);
+    List<Post> findAll(@Param("openId") String openId);
 
     int updateByPrimaryKeySelective(Post record);
 
     int updateByPrimaryKey(Post record);
 
-    void updateFavoriteNum(String nickName, int pId, int num);
+    void updateFavoriteNum(@Param("nickName") String nickName, @Param("pId") int pId, @Param("num") int num);
 }

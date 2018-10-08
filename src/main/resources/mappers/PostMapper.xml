@@ -31,19 +31,16 @@
   </select>
 
   <!--查询所有消息-->
-  <select id="findAll" resultMap="BaseResultMap">
+  <select id="findAll" resultMap="BaseResultMap" parameterType="java.lang.String">
     select
     <include refid="Base_Column_List" />
     from post
+    <if test="openId != null">
+      where open_id = #{openId,jdbcType=VARCHAR}
+    </if>
+    order by time_stamp desc
   </select>
 
-  <!--通过openId查询所有消息-->
-  <select id="findAllByOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select
-    <include refid="Base_Column_List" />
-    from post
-    where open_id = #{openId,jdbcType=VARCHAR}
-  </select>
 
   <delete id="deleteByPrimaryKey" >
     delete from post

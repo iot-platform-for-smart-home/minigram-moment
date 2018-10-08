@@ -16,20 +16,13 @@ public class PostServiceImpl implements PostService {
     private PostMapper postMapper;
 
     @Override
-    public List<Post> findAll(Integer page){
-        List<Post> posts = postMapper.findAll(page);
+    public List<Post> findAll(String openId, Integer page){
+        List<Post> posts = postMapper.findAll(openId);
         int left = page * 9;
         int right = (page+1)*9 < posts.size() ? (page+1)*9 : posts.size();
         return posts.subList(left, right);
     }
 
-    @Override
-    public List<Post> findByOpenId(String openId, Integer page) {
-        List<Post> posts = new ArrayList<>(postMapper.findAllByOpenId(openId));
-        int left = page * 9;
-        int right = (page+1)*9 < posts.size() ? (page+1)*9 : posts.size();
-        return posts.subList(left, right);
-    }
 
     @Override
     public List<Post> findPost(String searchText, Integer page) {

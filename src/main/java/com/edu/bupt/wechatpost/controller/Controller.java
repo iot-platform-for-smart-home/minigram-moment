@@ -26,15 +26,8 @@ public class Controller {
 
     @RequestMapping(value = "/findAllPosts", method = RequestMethod.GET)
     @ResponseBody
-    public List<Post> findAllPost(int page) {
-        List<Post> results = postService.findAll(page);
-        return results;
-    }
-
-    @RequestMapping(value = "/findAllPostsByOpenId", method = RequestMethod.GET)
-    @ResponseBody
-    public List<Post> findAllPostByOpenId(String openId, int page) {
-        List<Post> results = postService.findByOpenId(openId,page);
+    public List<Post> findAllPost(String openId, int page) {
+        List<Post> results = postService.findAll(openId, page);
         return results;
     }
 

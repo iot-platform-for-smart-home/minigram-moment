@@ -10,15 +10,7 @@ public interface PostService {
      * 查询所有消息
      * @return
      */
-    List<Post> findAll(Integer page);
-
-    /**
-     * 查找用户发布的消息
-     * @param openId
-     * @param page
-     * @return
-     */
-    List<Post> findByOpenId(String openId, Integer page);
+    List<Post> findAll(String openId, Integer page);
 
     /**
      * 模糊查找关键词相关的消息（昵称，时间，消息内容）
@@ -47,5 +39,11 @@ public interface PostService {
      */
     void updatePost(Post myPost);
 
+    /**
+     * 修改点赞数
+     * @param nickName
+     * @param pId
+     * @param num
+     */
     void updateFavoriteNum(String nickName, int pId, int num);
 }
