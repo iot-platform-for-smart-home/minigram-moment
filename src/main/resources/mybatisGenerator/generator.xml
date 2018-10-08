@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+                "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!--导入generator属性配置 -->
+    <!--resource表示配置文件路径-->
+    <properties resource="mybatisGenerator/generatorConfig.properties"></properties>
+
+    <!--指定数据库驱动的jdbc驱动jar包的位置-->
+    <classPathEntry location="${db.driverLocation}"/>
+
+    <!--工程的主要配置信息-->
+    <!--id 随便起个名字  -->
+    <!--targetRuntime:设置生成的文件的运行时环境，适用于哪个mybatis版本-->
+    <!--defaultModelType : 定义MGB生成实体类的方式-->
+    <context id="my" targetRuntime="MyBatis3" defaultModelType="flat">
+
+        <!--创建class时的注释进行控制，非必须且至多一个-->
+        <commentGenerator>
+            <!--阻止生成的注释包含时间戳，默认为 false-->
+            <property name="suppressDate" value="true"/>
+            <!--阻止生成注释，默认为 false-->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!--jdbc数据库连接配置, 必须有且仅有一个-->
+        <!--driverClass ：访问数据库的JDBC驱动程序的完全限定类名，必须属性-->
+        <!--connectionUrl : 数据库url(远程数据库需有ip地址和端口-，必须属性-->
+        <!--userId : 数据库用户名 ; password : 密码， 非必须属性-->
+        <jdbcConnection driverClass="${db.driverClassName}"
+                        connectionURL="${db.url}"
+                        userId="${db.username}"
+                        password="${db.password}">
+        </jdbcConnection>
+
+        <!--类型处理器，在数据库类型和java类型之间的转换控制，非必须且至多一个-->
+        <javaTypeResolver>
+            <!--默认情况下数据库中的 decimal，bigInt 在 Java 对应是 sql 下的 BigDecimal 类-->
+            <!-- 不是 double 和 long 类型 -->
+            <!-- 使用常用的基本类型代替 sql 包下的引用类型 -->
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--控制生成的实体类， 必须有且至多一个-->
+        <!-- targetPackage：生成的实体类所在的包名 -->
+        <!-- targetProject：指定目标项目路径，相对或者绝对路径 -->
+        <javaModelGenerator
+                targetPackage="com.edu.bupt.wechatpost.model"
+                targetProject=".\src\main\java">
+            <!--是否允许子包-->
+            <property name="enableSubPackages" value="false"/>
+            <!--构造参数方式，true 则使用构造方法入参， false 则使用 setter 方法-->
+            <property name="constructorBased" value="true"/>
+            <!--是否清理从数据库中查询出的字符串左右两边的空白字符-->
+            <property name="trimStrings" value="true"/>
+            <!--建立 model 对象属性是否可变-->
+            <!--true : 忽略 constructorBased，采用构造方法入参-->
+            <!--false : 实体类属性可以改变，默认值为false-->
+            <property name="immutable" value="false"/>
+        </javaModelGenerator>
+
+        <!--指定生成的 mapper 配置文件的包名和目录-->
+        <sqlMapGenerator targetPackage="mappers"
+                         targetProject=".\src\main\resources">
+            <property name="enableSubpackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!--指定生成的 interface 文件的包名和目录-->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.edu.bupt.wechatpost.dao"
+                             targetProject=".\src\main\java">
+            <property name="enableSubPackage" value="false"/>
+        </javaClientGenerator>
+
+        <table tableName="post"
+                selectByExampleQueryId="false"
+               domainObjectName="Post"
+                enableCountByExample="false"
+                enableUpdateByExample="false"
+                enableDeleteByExample="false"
+                enableSelectByExample="false">
+        </table>
+
+        <table tableName="comment"
+               selectByExampleQueryId="false"
+               domainObjectName="Comment"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false">
+        </table>
+
+    </context>
+</generatorConfiguration>
