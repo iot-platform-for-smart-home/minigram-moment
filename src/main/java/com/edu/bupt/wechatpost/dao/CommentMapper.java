@@ -8,19 +8,14 @@ import java.util.List;
 
 @Mapper
 public interface CommentMapper {
-    int deleteByPrimaryKey(@Param("openId") String openId, @Param("pId") Integer pId, @Param("cId") Integer cId);
+    int deleteByPrimaryKey(@Param("pId") Integer pId, @Param("cId") Integer cId);
 
-    int insert(Comment record);
+    int insert(Comment comment);
 
-    int insertSelective(Comment record);
+    int insertSelective(Comment comment);
 
     Comment selectByPrimaryKey(@Param("cId") Integer cId, @Param("pId") Integer pId);
 
-    List<Comment> findAllByPostId(@Param("openId")String openId, @Param("pId") Integer pId);
+    List<Comment> findAllByPostId(@Param("pId") Integer pId);
 
-    List<Comment> findAllByOpenId(@Param("openId") String openId);
-
-    int updateByPrimaryKeySelective(Comment record);
-
-    int updateByPrimaryKey(Comment record);
 }

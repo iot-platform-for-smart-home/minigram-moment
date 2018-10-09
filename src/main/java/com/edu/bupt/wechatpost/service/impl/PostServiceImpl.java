@@ -23,10 +23,14 @@ public class PostServiceImpl implements PostService {
         return posts.subList(left, right);
     }
 
+    @Override
+    public Post findAPost(String openId, Integer pId) {
+        return postMapper.selectByPrimaryKey(openId, pId);
+    }
 
     @Override
     public List<Post> findPost(String searchText, Integer page) {
-        List<Post> posts = new ArrayList<>(postMapper.selectByPrimaryKeySelective(searchText));
+        List<Post> posts = postMapper.selectByKeySelective(searchText);
         int left = page * 9;
         int right = (page+1)*9 < posts.size() ? (page+1)*9 : posts.size();
         List<Post> myPosts = new ArrayList<>(posts.subList(left, right));
@@ -34,20 +38,20 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void addPost(Post myPost) {
+    public void addPost(Post myPost){
         postMapper.insert(myPost);
     }
 
     @Override
-    public void deletePost(String openId, Integer postId) {
-        postMapper.deleteByPrimaryKey(postId, openId);
+    public Integer deletePost(String openId, Integer postId) {
+        return postMapper.deleteByPrimaryKey(postId, openId);
     }
 
     @Override
-    public void updatePost(Post myPost) {
-        postMapper.updateByPrimaryKeySelective(myPost);
+    public Integer updatePost(Post myPost) {
+        return postMapper.updateByPrimaryKeySelective(myPost);
     }
 
     @Override
-    public void updateFavoriteNum(String nickName, int pId, int num) { postMapper.updateFavoriteNum(nickName, pId, num); }
+    public Integer updateFavoriteNum(String nickName, Integer pId, Integer num) { return postMapper.updateFavoriteNum(nickName, pId, num); }
 }

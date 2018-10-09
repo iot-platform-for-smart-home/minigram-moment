@@ -13,6 +13,14 @@ public interface PostService {
     List<Post> findAll(String openId, Integer page);
 
     /**
+     * 根据openId , pId 查找某条消息
+     * @param openId
+     * @param pId
+     * @return
+     */
+    Post findAPost(String openId, Integer pId);
+
+    /**
      * 模糊查找关键词相关的消息（昵称，时间，消息内容）
      * @param searchText
      * @param page
@@ -31,13 +39,13 @@ public interface PostService {
      * @param openId
      * @param postId
      */
-    void deletePost(String openId, Integer postId);
+    Integer deletePost(String openId, Integer postId);
 
     /**
      * 更新消息
      * @param myPost
      */
-    void updatePost(Post myPost);
+    Integer updatePost(Post myPost) ;
 
     /**
      * 修改点赞数
@@ -45,5 +53,5 @@ public interface PostService {
      * @param pId
      * @param num
      */
-    void updateFavoriteNum(String nickName, int pId, int num);
+    Integer updateFavoriteNum(String nickName, Integer pId, Integer num) ;
 }

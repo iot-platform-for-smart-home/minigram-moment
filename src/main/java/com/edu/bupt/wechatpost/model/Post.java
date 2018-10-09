@@ -21,6 +21,17 @@ public class Post {
 
     private Integer favoritenum;
 
+    public Post(String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoritenum) {
+        this.openId = openId;
+        this.pAvatar = pAvatar;
+        this.nickName = nickName;
+        this.timeStamp = timeStamp;
+        this.pContent = pContent;
+        this.image = image;
+        this.location = location;
+        this.favoritenum = favoritenum;
+    }
+
     public Post(Integer pId, String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoritenum) {
         this.pId = pId;
         this.openId = openId;

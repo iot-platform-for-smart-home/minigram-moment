@@ -5,18 +5,22 @@ public class Comment {
 
     private Integer pId;
 
-    private String cAvatar;
+    private String nickName;
 
     private String cContent;
 
-    private String openId;
 
-    public Comment(Integer cId, Integer pId, String cAvatar, String cContent, String openId) {
+    public Comment(Integer pId, String nickName, String cContent) {
+        this.pId = pId;
+        this.nickName = nickName;
+        this.cContent = cContent;
+    }
+
+    public Comment(Integer cId, Integer pId, String nickName, String cContent) {
         this.cId = cId;
         this.pId = pId;
-        this.cAvatar = cAvatar;
+        this.nickName = nickName;
         this.cContent = cContent;
-        this.openId = openId;
     }
 
     public Comment() {
@@ -39,12 +43,12 @@ public class Comment {
         this.pId = pId;
     }
 
-    public String getcAvatar() {
-        return cAvatar;
+    public String getNickName() {
+        return nickName;
     }
 
-    public void setcAvatar(String cAvatar) {
-        this.cAvatar = cAvatar == null ? null : cAvatar.trim();
+    public void setNickName(String nickName) {
+        this.nickName = nickName == null ? null : nickName.trim();
     }
 
     public String getcContent() {
@@ -55,11 +59,4 @@ public class Comment {
         this.cContent = cContent == null ? null : cContent.trim();
     }
 
-    public String getOpenId() {
-        return openId;
-    }
-
-    public void setOpenId(String openId) {
-        this.openId = openId == null ? null : openId.trim();
-    }
 }

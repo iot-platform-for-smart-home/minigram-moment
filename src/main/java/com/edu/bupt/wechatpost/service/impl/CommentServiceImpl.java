@@ -11,26 +11,20 @@ import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
     @Autowired
     private CommentMapper commentMapper;
 
     @Override
-    public List<Comment> findByPostId(String openId, Integer postId, Integer page) {
-        List<Comment> comments = new ArrayList<>(commentMapper.findAllByPostId(openId, postId));
+    public List<Comment> findByPostId(Integer postId, Integer page) {
+        List<Comment> comments = commentMapper.findAllByPostId(postId);
+//        if (comments.size() == 0 ) return comments;
         int left = page * 9;
         int right = (page+1)*9 > comments.size() ? comments.size() : (page+1)*9;
-        List<Comment> myComments = new ArrayList<>(comments.subList(left, right));
-        return myComments;
+        return comments.subList(left, right);
     }
 
-//    @Override
-//    public List<Comment> findByOpenId(String openId, Integer page) {
-//        List<Comment> comments = new ArrayList<>(commentMapper.findAllByOpenId(openId));
-//        int left = page * 9;
-//        int right = (page+1)*9 > comments.size() ? comments.size() : (page+1)*9;
-//        List<Comment> myComments = new ArrayList<>(comments.subList(left, right));
-//        return myComments;
-//    }
+
 
     @Override
     public void addComment(Comment myComment) {
@@ -38,12 +32,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(String openId, Integer postId, Integer commentId) {
-        commentMapper.deleteByPrimaryKey(openId, commentId, postId);
+    public Integer deleteComment(Integer postId, Integer commentId) {
+        return commentMapper.deleteByPrimaryKey(commentId, postId);
     }
 
-    @Override
-    public void updateComment(Comment myComment) {
-        commentMapper.updateByPrimaryKeySelective(myComment);
-    }
+//    @Override
+//    public void updateComment(Comment myComment) {
+//        commentMapper.updateByPrimaryKeySelective(myComment);
+//    }
 }

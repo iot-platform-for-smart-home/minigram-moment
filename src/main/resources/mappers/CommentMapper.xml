@@ -5,14 +5,13 @@
     <constructor >
       <idArg column="c_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <idArg column="p_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="c_avatar" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="nick_name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="c_content" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="open_id" jdbcType="VARCHAR" javaType="java.lang.String" />
     </constructor>
   </resultMap>
   <!--定义 sql 片段，之后可以用 <include refid="Base_Column_Lsit"/> 来复用 sql 片段-->
   <sql id="Base_Column_List" >
-    c_id, p_id, c_avatar, c_content, open_id
+    c_id, p_id, nick_name, c_content
   </sql>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" >
@@ -23,21 +22,12 @@
       and p_id = #{pId,jdbcType=INTEGER}
   </select>
 
-  <!--通过openId, postId查询所有评论-->
-  <select id="findAllByPostId" resultMap="BaseResultMap">
+  <!--通过postId查询所有评论-->
+  <select id="findAllByPostId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
     select
     <include refid="Base_Column_List" />
     from comment
-    where p_id = #{pId,jdbcType=INTEGER}
-    and open_id = #{openId,jdbcType=VARCHAR}
-  </select>
-
-  <!--通过openId查询所有评论-->
-  <select id="findAllByOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select
-    <include refid="Base_Column_List" />
-    from comment
-    where open_id = #{openId,jdbcType=VARCHAR}
+    where p_id = #{pId, jdbcType = INTEGER}
   </select>
 
   <!--删除评论-->
@@ -47,18 +37,17 @@
       and p_id = #{pId,jdbcType=INTEGER}
   </delete>
 
+  <!--根据postId 批量删除评论-->
   <delete id="deleteByOpenId" >
     delete from comment
-    where c_id = #{cId,jdbcType=INTEGER}
-      and open_id = #{openId,jdbcType=VARCHAR}
+    where p_id = #{pId, jdbcType=INTEGER}
   </delete>
 
   <!--插入评论（全部参数）-->
   <insert id="insert" parameterType="com.edu.bupt.wechatpost.model.Comment" >
-    insert into comment (c_id, p_id, c_avatar, 
-      c_content, open_id)
-    values (#{cId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER}, #{cAvatar,jdbcType=VARCHAR}, 
-      #{cContent,jdbcType=VARCHAR}, #{openId,jdbcType=VARCHAR})
+    insert into comment (c_id, p_id, nick_name, c_content)
+    values (#{cId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER}, #{nickName,jdbcType=VARCHAR},
+      #{cContent,jdbcType=VARCHAR})
   </insert>
 
   <!--插入评论（部分参数）-->
@@ -71,14 +60,11 @@
       <if test="pId != null" >
         p_id,
       </if>
-      <if test="cAvatar != null" >
-        c_avatar,
+      <if test="nickName != null" >
+        nick_name,
       </if>
       <if test="cContent != null" >
         c_content,
-      </if>
-      <if test="openId != null" >
-        open_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -88,43 +74,12 @@
       <if test="pId != null" >
         #{pId,jdbcType=INTEGER},
       </if>
-      <if test="cAvatar != null" >
-        #{cAvatar,jdbcType=VARCHAR},
+      <if test="nickName != null" >
+        #{nickName,jdbcType=VARCHAR},
       </if>
       <if test="cContent != null" >
         #{cContent,jdbcType=VARCHAR},
       </if>
-      <if test="openId != null" >
-        #{openId,jdbcType=VARCHAR},
-      </if>
     </trim>
   </insert>
-
-  <!--更新评论（部分参数）-->
-  <update id="updateByPrimaryKeySelective" >
-    update comment
-    <set >
-      <if test="cAvatar != null" >
-        c_avatar = #{cAvatar,jdbcType=VARCHAR},
-      </if>
-      <if test="cContent != null" >
-        c_content = #{cContent,jdbcType=VARCHAR},
-      </if>
-      <if test="openId != null" >
-        open_id = #{openId,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where c_id = #{cId,jdbcType=INTEGER}
-      and p_id = #{pId,jdbcType=INTEGER}
-  </update>
-
-  <!--更新评论（全部参数）-->
-  <update id="updateByPrimaryKey" >
-    update comment
-    set c_avatar = #{cAvatar,jdbcType=VARCHAR},
-      c_content = #{cContent,jdbcType=VARCHAR},
-      open_id = #{openId,jdbcType=VARCHAR}
-    where c_id = #{cId,jdbcType=INTEGER}
-      and p_id = #{pId,jdbcType=INTEGER}
-  </update>
 </mapper>

@@ -19,28 +19,35 @@
   </sql>
 
   <!--关键词模糊查询消息-->
-  <select id="selectByPrimaryKeySelective" resultMap="BaseResultMap" >
+  <select id="selectByKeySelective" resultMap="BaseResultMap" resultType="Post" parameterType="java.lang.String">
     select
     <include refid="Base_Column_List" />
     from post
-    <if test="searchText != null">
-      where nick_name like '%#{searchText}%'
-      or time_stamp like '%#{searchText}%'
-      or p_content like '%#{searchText}%'
+    <if test="searchText != ''">
+      where nick_name like '%${searchText}%'
+      or time_stamp like binary '%${searchText}%'
+      or p_content like '%${searchText}%'
     </if>
   </select>
 
-  <!--查询所有消息-->
-  <select id="findAll" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="selectByPrimaryKey" parameterType="map" resultType="Post">
     select
     <include refid="Base_Column_List" />
     from post
-    <if test="openId != null">
+    where open_id = #{openId, jdbcType=VARCHAR}
+    and p_id = #{pId, jdbcType=INTEGER}
+  </select>
+
+  <!--查询所有消息-->
+  <select id="findAll" resultMap="BaseResultMap" resultType="Post">
+    select
+    <include refid="Base_Column_List" />
+    from post
+    <if test="openId != ''">
       where open_id = #{openId,jdbcType=VARCHAR}
     </if>
     order by time_stamp desc
   </select>
-
 
   <delete id="deleteByPrimaryKey" >
     delete from post
@@ -163,10 +170,10 @@
       and open_id = #{openId,jdbcType=VARCHAR}
   </update>
 
-  <update id="updateFavoriteNum" >
+  <update id="updateFavoriteNum" parameterType="map">
     update post
     set favoriteNum = #{num, jdbcType=INTEGER} + favoriteNum
-    where nick_name = #{nickNiame, jdbcType=VARCHAR}
+    where nick_name = #{nickName, jdbcType=VARCHAR}
      and p_id = #{pId, jdbcType=INTEGER}
   </update>
 </mapper>

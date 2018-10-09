@@ -8,19 +8,22 @@ import java.util.List;
 
 @Mapper
 public interface PostMapper {
-    int deleteByPrimaryKey(@Param("pId") Integer pId, @Param("openId") String openId);
+    Integer deleteByPrimaryKey(@Param("pId") Integer pId, @Param("openId") String openId);
 
-    int insert(Post record);
+    Integer insert(Post record);
 
-    int insertSelective(Post record);
+    Integer insertSelective(Post record);
 
-    List<Post> selectByPrimaryKeySelective(String searchText);
+    List<Post> selectByKeySelective(@Param("searchText") String searchText);
 
-    List<Post> findAll(@Param("openId") String openId);
+    Post selectByPrimaryKey(@Param("openId") String openId, @Param("pId") Integer pId);
 
-    int updateByPrimaryKeySelective(Post record);
+    List<Post> findAll(@Param(value="openId") String openId);
 
-    int updateByPrimaryKey(Post record);
 
-    void updateFavoriteNum(@Param("nickName") String nickName, @Param("pId") int pId, @Param("num") int num);
+    Integer updateByPrimaryKeySelective(Post record);
+
+    Integer updateByPrimaryKey(Post record);
+
+    Integer updateFavoriteNum(@Param("nickName") String nickName, @Param("pId") int pId, @Param("num") int num);
 }
