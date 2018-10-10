@@ -1,12 +1,10 @@
 package com.edu.bupt.wechatpost.dao;
 
 import com.edu.bupt.wechatpost.model.Comment;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Mapper
 public interface CommentMapper {
     int deleteByPrimaryKey(@Param("pId") Integer pId, @Param("cId") Integer cId);
 
@@ -17,5 +15,4 @@ public interface CommentMapper {
     Comment selectByPrimaryKey(@Param("cId") Integer cId, @Param("pId") Integer pId);
 
     List<Comment> findAllByPostId(@Param("pId") Integer pId);
-
 }

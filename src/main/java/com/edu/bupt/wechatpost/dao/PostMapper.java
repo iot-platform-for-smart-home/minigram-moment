@@ -1,12 +1,10 @@
 package com.edu.bupt.wechatpost.dao;
 
 import com.edu.bupt.wechatpost.model.Post;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Mapper
 public interface PostMapper {
     Integer deleteByPrimaryKey(@Param("pId") Integer pId, @Param("openId") String openId);
 

@@ -9,15 +9,14 @@ public class Comment {
 
     private String cContent;
 
-
-    public Comment(Integer pId, String nickName, String cContent) {
+    public Comment(Integer cId, Integer pId, String nickName, String cContent) {
+        this.cId = cId;
         this.pId = pId;
         this.nickName = nickName;
         this.cContent = cContent;
     }
 
-    public Comment(Integer cId, Integer pId, String nickName, String cContent) {
-        this.cId = cId;
+    public Comment(Integer pId, String nickName, String cContent) {
         this.pId = pId;
         this.nickName = nickName;
         this.cContent = cContent;
@@ -58,5 +57,4 @@ public class Comment {
     public void setcContent(String cContent) {
         this.cContent = cContent == null ? null : cContent.trim();
     }
-
 }

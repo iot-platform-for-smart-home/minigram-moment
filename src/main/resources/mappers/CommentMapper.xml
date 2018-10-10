@@ -1,20 +1,100 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.edu.bupt.wechatpost.dao.CommentMapper" >
-  <resultMap id="BaseResultMap" type="com.edu.bupt.wechatpost.model.Comment" >
-    <constructor >
-      <idArg column="c_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <idArg column="p_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="nick_name" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="c_content" jdbcType="VARCHAR" javaType="java.lang.String" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.bupt.wechatpost.dao.CommentMapper">
+  <resultMap id="BaseResultMap" type="com.edu.bupt.wechatpost.model.Comment">
+    <constructor>
+      <idArg column="c_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="p_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="nick_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="c_content" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    c_id, p_id, nick_name, c_content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from comment
+    where c_id = #{cId,jdbcType=INTEGER}
+      and p_id = #{pId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from comment
+    where c_id = #{cId,jdbcType=INTEGER}
+      and p_id = #{pId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.edu.bupt.wechatpost.model.Comment">
+    insert into comment (c_id, p_id, nick_name, 
+      c_content)
+    values (#{cId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER}, #{nickName,jdbcType=VARCHAR}, 
+      #{cContent,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.edu.bupt.wechatpost.model.Comment">
+    insert into comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cId != null">
+        c_id,
+      </if>
+      <if test="pId != null">
+        p_id,
+      </if>
+      <if test="nickName != null">
+        nick_name,
+      </if>
+      <if test="cContent != null">
+        c_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cId != null">
+        #{cId,jdbcType=INTEGER},
+      </if>
+      <if test="pId != null">
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="nickName != null">
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="cContent != null">
+        #{cContent,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.edu.bupt.wechatpost.model.Comment">
+    update comment
+    <set>
+      <if test="nickName != null">
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="cContent != null">
+        c_content = #{cContent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where c_id = #{cId,jdbcType=INTEGER}
+      and p_id = #{pId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.edu.bupt.wechatpost.model.Comment">
+    update comment
+    set nick_name = #{nickName,jdbcType=VARCHAR},
+      c_content = #{cContent,jdbcType=VARCHAR}
+    where c_id = #{cId,jdbcType=INTEGER}
+      and p_id = #{pId,jdbcType=INTEGER}
+  </update>
+  <resultMap id="BaseResultMap" type="com.edu.bupt.wechatpost.model.Comment">
+    <constructor>
+      <idArg column="c_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="p_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="nick_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="c_content" javaType="java.lang.String" jdbcType="VARCHAR" />
     </constructor>
   </resultMap>
   <!--定义 sql 片段，之后可以用 <include refid="Base_Column_Lsit"/> 来复用 sql 片段-->
-  <sql id="Base_Column_List" >
+  <sql id="Base_Column_List">
     c_id, p_id, nick_name, c_content
   </sql>
 
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from comment
@@ -23,7 +103,7 @@
   </select>
 
   <!--通过postId查询所有评论-->
-  <select id="findAllByPostId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  <select id="findAllByPostId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from comment
@@ -31,53 +111,53 @@
   </select>
 
   <!--删除评论-->
-  <delete id="deleteByPrimaryKey" >
+  <delete id="deleteByPrimaryKey">
     delete from comment
     where c_id = #{cId,jdbcType=INTEGER}
       and p_id = #{pId,jdbcType=INTEGER}
   </delete>
 
   <!--根据postId 批量删除评论-->
-  <delete id="deleteByOpenId" >
+  <delete id="deleteByOpenId">
     delete from comment
     where p_id = #{pId, jdbcType=INTEGER}
   </delete>
 
   <!--插入评论（全部参数）-->
-  <insert id="insert" parameterType="com.edu.bupt.wechatpost.model.Comment" >
+  <insert id="insert" parameterType="com.edu.bupt.wechatpost.model.Comment">
     insert into comment (c_id, p_id, nick_name, c_content)
     values (#{cId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER}, #{nickName,jdbcType=VARCHAR},
       #{cContent,jdbcType=VARCHAR})
   </insert>
 
   <!--插入评论（部分参数）-->
-  <insert id="insertSelective" parameterType="com.edu.bupt.wechatpost.model.Comment" >
+  <insert id="insertSelective" parameterType="com.edu.bupt.wechatpost.model.Comment">
     insert into comment
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="cId != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cId != null">
         c_id,
       </if>
-      <if test="pId != null" >
+      <if test="pId != null">
         p_id,
       </if>
-      <if test="nickName != null" >
+      <if test="nickName != null">
         nick_name,
       </if>
-      <if test="cContent != null" >
+      <if test="cContent != null">
         c_content,
       </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="cId != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cId != null">
         #{cId,jdbcType=INTEGER},
       </if>
-      <if test="pId != null" >
+      <if test="pId != null">
         #{pId,jdbcType=INTEGER},
       </if>
-      <if test="nickName != null" >
+      <if test="nickName != null">
         #{nickName,jdbcType=VARCHAR},
       </if>
-      <if test="cContent != null" >
+      <if test="cContent != null">
         #{cContent,jdbcType=VARCHAR},
       </if>
     </trim>

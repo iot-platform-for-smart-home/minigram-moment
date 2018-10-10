@@ -19,20 +19,9 @@ public class Post {
 
     private String location;
 
-    private Integer favoritenum;
+    private Integer favoriteNum;
 
-    public Post(String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoritenum) {
-        this.openId = openId;
-        this.pAvatar = pAvatar;
-        this.nickName = nickName;
-        this.timeStamp = timeStamp;
-        this.pContent = pContent;
-        this.image = image;
-        this.location = location;
-        this.favoritenum = favoritenum;
-    }
-
-    public Post(Integer pId, String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoritenum) {
+    public Post(Integer pId, String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoriteNum) {
         this.pId = pId;
         this.openId = openId;
         this.pAvatar = pAvatar;
@@ -41,7 +30,18 @@ public class Post {
         this.pContent = pContent;
         this.image = image;
         this.location = location;
-        this.favoritenum = favoritenum;
+        this.favoriteNum = favoriteNum;
+    }
+
+    public Post(String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoriteNum) {
+        this.openId = openId;
+        this.pAvatar = pAvatar;
+        this.nickName = nickName;
+        this.timeStamp = timeStamp;
+        this.pContent = pContent;
+        this.image = image;
+        this.location = location;
+        this.favoriteNum = favoriteNum;
     }
 
     public Post() {
@@ -113,10 +113,10 @@ public class Post {
     }
 
     public Integer getFavoritenum() {
-        return favoritenum;
+        return favoriteNum;
     }
 
-    public void setFavoritenum(Integer favoritenum) {
-        this.favoritenum = favoritenum;
+    public void setFavoritenum(Integer favoriteNum) {
+        this.favoriteNum = favoriteNum;
     }
 }
