@@ -1,146 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.edu.bupt.wechatpost.dao.PostMapper">
-  <resultMap id="BaseResultMap" type="com.edu.bupt.wechatpost.model.Post">
-    <constructor>
-      <idArg column="p_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="open_id" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="p_avatar" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="nick_name" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="time_stamp" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-      <arg column="p_content" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="image" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="location" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="favoriteNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-    </constructor>
-  </resultMap>
-  <sql id="Base_Column_List">
-    p_id, open_id, p_avatar, nick_name, time_stamp, p_content, image, location, favoriteNum
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from post
-    where p_id = #{pId,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from post
-    where p_id = #{pId,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="com.edu.bupt.wechatpost.model.Post">
-    insert into post (p_id, open_id, p_avatar, 
-      nick_name, time_stamp, p_content, 
-      image, location, favoriteNum
-      )
-    values (#{pId,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{pAvatar,jdbcType=VARCHAR}, 
-      #{nickName,jdbcType=VARCHAR}, #{timeStamp,jdbcType=TIMESTAMP}, #{pContent,jdbcType=VARCHAR}, 
-      #{image,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, #{favoriteNum,jdbcType=INTEGER}
-      )
-  </insert>
-  <insert id="insertSelective" parameterType="com.edu.bupt.wechatpost.model.Post">
-    insert into post
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="pId != null">
-        p_id,
-      </if>
-      <if test="openId != null">
-        open_id,
-      </if>
-      <if test="pAvatar != null">
-        p_avatar,
-      </if>
-      <if test="nickName != null">
-        nick_name,
-      </if>
-      <if test="timeStamp != null">
-        time_stamp,
-      </if>
-      <if test="pContent != null">
-        p_content,
-      </if>
-      <if test="image != null">
-        image,
-      </if>
-      <if test="location != null">
-        location,
-      </if>
-      <if test="favoriteNum != null">
-        favoriteNum,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="pId != null">
-        #{pId,jdbcType=INTEGER},
-      </if>
-      <if test="openId != null">
-        #{openId,jdbcType=VARCHAR},
-      </if>
-      <if test="pAvatar != null">
-        #{pAvatar,jdbcType=VARCHAR},
-      </if>
-      <if test="nickName != null">
-        #{nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="timeStamp != null">
-        #{timeStamp,jdbcType=TIMESTAMP},
-      </if>
-      <if test="pContent != null">
-        #{pContent,jdbcType=VARCHAR},
-      </if>
-      <if test="image != null">
-        #{image,jdbcType=VARCHAR},
-      </if>
-      <if test="location != null">
-        #{location,jdbcType=VARCHAR},
-      </if>
-      <if test="favoriteNum != null">
-        #{favoriteNum,jdbcType=INTEGER},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.edu.bupt.wechatpost.model.Post">
-    update post
-    <set>
-      <if test="openId != null">
-        open_id = #{openId,jdbcType=VARCHAR},
-      </if>
-      <if test="pAvatar != null">
-        p_avatar = #{pAvatar,jdbcType=VARCHAR},
-      </if>
-      <if test="nickName != null">
-        nick_name = #{nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="timeStamp != null">
-        time_stamp = #{timeStamp,jdbcType=TIMESTAMP},
-      </if>
-      <if test="pContent != null">
-        p_content = #{pContent,jdbcType=VARCHAR},
-      </if>
-      <if test="image != null">
-        image = #{image,jdbcType=VARCHAR},
-      </if>
-      <if test="location != null">
-        location = #{location,jdbcType=VARCHAR},
-      </if>
-      <if test="favoriteNum != null">
-        favoriteNum = #{favoriteNum,jdbcType=INTEGER},
-      </if>
-    </set>
-    where p_id = #{pId,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.edu.bupt.wechatpost.model.Post">
-    update post
-    set open_id = #{openId,jdbcType=VARCHAR},
-      p_avatar = #{pAvatar,jdbcType=VARCHAR},
-      nick_name = #{nickName,jdbcType=VARCHAR},
-      time_stamp = #{timeStamp,jdbcType=TIMESTAMP},
-      p_content = #{pContent,jdbcType=VARCHAR},
-      image = #{image,jdbcType=VARCHAR},
-      location = #{location,jdbcType=VARCHAR},
-      favoriteNum = #{favoriteNum,jdbcType=INTEGER}
-    where p_id = #{pId,jdbcType=INTEGER}
-  </update>
-  <resultMap id="BaseResultMap" type="com.edu.bupt.wechatpost.model.Post">
+  <resultMap id="ResultPost" type="com.edu.bupt.wechatpost.model.Post">
     <constructor>
       <idArg column="p_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <idArg column="open_id" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -158,7 +19,7 @@
   </sql>
 
   <!--关键词模糊查询消息-->
-  <select id="selectByKeySelective" parameterType="java.lang.String" resultMap="BaseResultMap" resultType="Post">
+  <select id="selectByKeySelective" parameterType="java.lang.String" resultMap="ResultPost" resultType="Post">
     select
     <include refid="Base_Column_List" />
     from post
@@ -178,7 +39,7 @@
   </select>
 
   <!--查询所有消息-->
-  <select id="findAll" resultMap="BaseResultMap" resultType="Post">
+  <select id="findAll" resultMap="ResultPost" resultType="Post">
     select
     <include refid="Base_Column_List" />
     from post
