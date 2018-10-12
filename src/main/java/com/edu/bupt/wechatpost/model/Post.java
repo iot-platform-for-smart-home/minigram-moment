@@ -11,7 +11,7 @@ public class Post {
 
     private String nickName;
 
-    private Date timeStamp;
+    private String timeStamp;
 
     private String pContent;
 
@@ -21,7 +21,7 @@ public class Post {
 
     private Integer favoriteNum;
 
-    public Post(Integer pId, String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoriteNum) {
+    public Post(Integer pId, String openId, String pAvatar, String nickName, String timeStamp, String pContent, String image, String location, Integer favoriteNum) {
         this.pId = pId;
         this.openId = openId;
         this.pAvatar = pAvatar;
@@ -33,7 +33,7 @@ public class Post {
         this.favoriteNum = favoriteNum;
     }
 
-    public Post(String openId, String pAvatar, String nickName, Date timeStamp, String pContent, String image, String location, Integer favoriteNum) {
+    public Post(String openId, String pAvatar, String nickName, String timeStamp, String pContent, String image, String location, Integer favoriteNum) {
         this.openId = openId;
         this.pAvatar = pAvatar;
         this.nickName = nickName;
@@ -80,11 +80,11 @@ public class Post {
         this.nickName = nickName == null ? null : nickName.trim();
     }
 
-    public Date getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(Date timeStamp) {
+    public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
     }
 

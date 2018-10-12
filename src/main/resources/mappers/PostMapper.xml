@@ -7,7 +7,7 @@
       <idArg column="open_id" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="p_avatar" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="nick_name" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="time_stamp" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="time_stamp" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="p_content" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="image" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="location" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -28,6 +28,7 @@
       or time_stamp like binary '%${searchText}%'
       or p_content like '%${searchText}%'
     </if>
+    order by p_id desc
   </select>
 
   <select id="selectByPrimaryKey" parameterType="map" resultType="Post">
@@ -43,10 +44,10 @@
     select
     <include refid="Base_Column_List" />
     from post
-    <if test="openId != ''">
+    <if test="openId != null ">
       where open_id = #{openId,jdbcType=VARCHAR}
     </if>
-    order by time_stamp desc
+    order by p_id desc
   </select>
 
   <delete id="deleteByPrimaryKey">
@@ -61,7 +62,7 @@
       image, location, favoriteNum
       )
     values (#{pId,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{pAvatar,jdbcType=VARCHAR}, 
-      #{nickName,jdbcType=VARCHAR}, #{timeStamp,jdbcType=TIMESTAMP}, #{pContent,jdbcType=VARCHAR}, 
+      #{nickName,jdbcType=VARCHAR}, #{timeStamp,jdbcType=VARCHAR}, #{pContent,jdbcType=VARCHAR},
       #{image,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, #{favoriteNum,jdbcType=INTEGER}
       )
   </insert>
@@ -111,7 +112,7 @@
         #{nickName,jdbcType=VARCHAR},
       </if>
       <if test="timeStamp != null">
-        #{timeStamp,jdbcType=TIMESTAMP},
+        #{timeStamp,jdbcType=VARCHAR},
       </if>
       <if test="pContent != null">
         #{pContent,jdbcType=VARCHAR},
@@ -138,7 +139,7 @@
         nick_name = #{nickName,jdbcType=VARCHAR},
       </if>
       <if test="timeStamp != null">
-        time_stamp = #{timeStamp,jdbcType=TIMESTAMP},
+        time_stamp = #{timeStamp,jdbcType=VARCHAR},
       </if>
       <if test="pContent != null">
         p_content = #{pContent,jdbcType=VARCHAR},
@@ -161,7 +162,7 @@
     update post
     set p_avatar = #{pAvatar,jdbcType=VARCHAR},
       nick_name = #{nickName,jdbcType=VARCHAR},
-      time_stamp = #{timeStamp,jdbcType=TIMESTAMP},
+      time_stamp = #{timeStamp,jdbcType=VARCHAR},
       p_content = #{pContent,jdbcType=VARCHAR},
       image = #{image,jdbcType=VARCHAR},
       location = #{location,jdbcType=VARCHAR},
