@@ -42,11 +42,13 @@ public class Controller {
         return results;
     }
 
-    @RequestMapping(value = "/addPost", method = RequestMethod.POST)
+    @RequestMapping(value = "/addPost", method = RequestMethod.GET)
     @ResponseBody
     public Integer addPost(String openId, String nickName, String pAvator, String pContent, String image, String location) throws Exception {
-        Post myPost = new Post(openId, pAvator, nickName, new Date(), pContent,image, location, 0);
         try {
+            java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm");
+            String s = format.format(new Date());
+            Post myPost = new Post(openId, pAvator, nickName, s, pContent,image, location, 0);
             postService.addPost(myPost);
             return 1;
         } catch(Exception e){
@@ -55,20 +57,22 @@ public class Controller {
         }
     }
 
-    @RequestMapping(value = "/deletePost", method = RequestMethod.POST)
+    @RequestMapping(value = "/deletePost", method = RequestMethod.GET)
     @ResponseBody
     public Integer deletePost(String openId, Integer pId){
         return postService.deletePost(openId,pId);
     }
 
-    @RequestMapping(value = "/updatePost", method = RequestMethod.POST)
+    @RequestMapping(value = "/updatePost", method = RequestMethod.GET)
     @ResponseBody
     public Integer updatePost(String openId, Integer pId, String nickName, String pAvator, String pContent, String image, String location){
-        Post myPost = new Post(pId, openId, pAvator, nickName, new Date(), pContent, image, location, 0);
+        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm");
+        String s = format.format(new Date());
+        Post myPost = new Post(pId, openId, pAvator, nickName, s, pContent, image, location, 0);
         return  postService.updatePost(myPost);
     }
 
-    @RequestMapping(value = "/favorite", method = RequestMethod.POST)
+    @RequestMapping(value = "/favorite", method = RequestMethod.GET)
     @ResponseBody
     public Integer updateFavoriteNum(String nickName, Integer pId, Integer num){
         return postService.updateFavoriteNum(nickName, pId, num);
@@ -81,7 +85,7 @@ public class Controller {
         return myComment;
     }
 
-    @RequestMapping(value = "/addComment", method = RequestMethod.POST)
+    @RequestMapping(value = "/addComment", method = RequestMethod.GET)
     @ResponseBody
     public Integer addComment(Integer pId, String nickName, String cContent)throws Exception{
         try{
@@ -94,7 +98,7 @@ public class Controller {
         }
     }
 
-    @RequestMapping(value = "/deleteComment", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
     @ResponseBody
     public Integer deleteComment(Integer pId, Integer cId) {
         return commentService.deleteComment(pId,cId);
