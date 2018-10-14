@@ -23,7 +23,7 @@
   </select>
 
   <!--通过postId查询所有评论-->
-  <select id="findAllByPostId" parameterType="java.lang.Integer">
+  <select id="findAllByPostId" parameterType="java.lang.Integer" resultType="com.edu.bupt.wechatpost.model.Comment">
     select
     <include refid="Base_Column_List" />
     from comment

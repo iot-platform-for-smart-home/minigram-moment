@@ -18,7 +18,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Comment> findByPostId(Integer postId, Integer page) {
         List<Comment> comments = commentMapper.findAllByPostId(postId);
-//        if (comments.size() == 0 ) return comments;
         int left = page * 9;
         int right = (page+1)*9 > comments.size() ? comments.size() : (page+1)*9;
         return comments.subList(left, right);

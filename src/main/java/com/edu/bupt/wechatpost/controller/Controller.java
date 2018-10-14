@@ -1,5 +1,6 @@
 package com.edu.bupt.wechatpost.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Comment;
 import com.edu.bupt.wechatpost.model.Post;
 import com.edu.bupt.wechatpost.service.CommentService;
@@ -21,11 +22,32 @@ public class Controller {
     private PostService postService;
 
 
-    @RequestMapping(value = "/findAllPosts", method = RequestMethod.GET)
+//    @RequestMapping(value = "/findAllPosts", method = RequestMethod.GET)
+//    @ResponseBody
+//    public List<Post> findAllPost(String openId , Integer page) {
+//        List<Post> results = postService.findAll(openId, page);
+//        return results;
+//    }
+
+    @RequestMapping(value = "/findAllPosts", method = RequestMethod.POST)
     @ResponseBody
-    public List<Post> findAllPost(String openId , Integer page) {
-        List<Post> results = postService.findAll(openId, page);
-        return results;
+    public JSONObject findAllPost(@RequestParam(value="openId", required = false) String openId , Integer page) throws Exception{
+        List<Post> posts = postService.findAll(openId, page);
+        JSONObject result = new JSONObject();
+        for (Post post:posts){
+            List<Comment> comments = null;
+            try {
+                comments = commentService.findByPostId(post.getpId(), 0);
+            } catch (Exception e){
+                e.printStackTrace();;
+            }
+            result.put("post"+post.getpId().toString(), post);
+            if(comments != null){
+                result.put("comments"+post.getpId().toString(),comments);
+            }
+            System.out.println(comments);
+        }
+        return result;
     }
 
     @RequestMapping(value = "/findAPost", method = RequestMethod.GET)
@@ -80,9 +102,14 @@ public class Controller {
 
     @RequestMapping(value = "/findComment", method = RequestMethod.GET)
     @ResponseBody
-    public List<Comment> findAllCommentByPostId(Integer pId, Integer page) {
-        List<Comment> myComment = commentService.findByPostId(pId, page);
-        return myComment;
+    public List<Comment> findAllCommentByPostId(Integer pId, Integer page) throws Exception{
+        try {
+            List<Comment> myComment = commentService.findByPostId(pId, page);
+            return myComment;
+        } catch (Exception e) {
+            e.printStackTrace();;
+            return null;
+        }
     }
 
     @RequestMapping(value = "/addComment", method = RequestMethod.GET)
