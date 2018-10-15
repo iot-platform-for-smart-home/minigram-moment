@@ -1,19 +1,19 @@
 package com.edu.bupt.wechatpost.model;
 
-import java.util.Date;
+import java.util.List;
 
 public class Post {
-    private Integer pId;
+    private Integer id;
 
-    private String openId;
+    private String openid;
 
-    private String pAvatar;
+    private String avatar;
 
-    private String nickName;
+    private String nickname;
 
-    private String timeStamp;
+    private String createTime;
 
-    private String pContent;
+    private String content;
 
     private String image;
 
@@ -21,24 +21,26 @@ public class Post {
 
     private Integer favoriteNum;
 
-    public Post(Integer pId, String openId, String pAvatar, String nickName, String timeStamp, String pContent, String image, String location, Integer favoriteNum) {
-        this.pId = pId;
-        this.openId = openId;
-        this.pAvatar = pAvatar;
-        this.nickName = nickName;
-        this.timeStamp = timeStamp;
-        this.pContent = pContent;
+    private List<Comment> comments;
+
+    public Post(Integer id, String openid, String avatar, String nickname, String createTime, String content, String image, String location, Integer favoriteNum) {
+        this.id = id;
+        this.openid = openid;
+        this.avatar = avatar;
+        this.nickname = nickname;
+        this.createTime = createTime;
+        this.content = content;
         this.image = image;
         this.location = location;
         this.favoriteNum = favoriteNum;
     }
 
-    public Post(String openId, String pAvatar, String nickName, String timeStamp, String pContent, String image, String location, Integer favoriteNum) {
-        this.openId = openId;
-        this.pAvatar = pAvatar;
-        this.nickName = nickName;
-        this.timeStamp = timeStamp;
-        this.pContent = pContent;
+    public Post(String openid, String avatar, String nickname, String createTime, String content, String image, String location, Integer favoriteNum) {
+        this.openid = openid;
+        this.avatar = avatar;
+        this.nickname = nickname;
+        this.createTime = createTime;
+        this.content = content;
         this.image = image;
         this.location = location;
         this.favoriteNum = favoriteNum;
@@ -49,51 +51,51 @@ public class Post {
     }
 
     public Integer getpId() {
-        return pId;
+        return id;
     }
 
-    public void setpId(Integer pId) {
-        this.pId = pId;
+    public void setpId(Integer id) {
+        this.id = id;
     }
 
     public String getOpenId() {
-        return openId;
+        return openid;
     }
 
-    public void setOpenId(String openId) {
-        this.openId = openId == null ? null : openId.trim();
+    public void setOpenId(String openid) {
+        this.openid = openid == null ? null : openid.trim();
     }
 
     public String getpAvatar() {
-        return pAvatar;
+        return avatar;
     }
 
-    public void setpAvatar(String pAvatar) {
-        this.pAvatar = pAvatar == null ? null : pAvatar.trim();
+    public void setpAvatar(String avatar) {
+        this.avatar = avatar == null ? null : avatar.trim();
     }
 
     public String getNickName() {
-        return nickName;
+        return nickname;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName == null ? null : nickName.trim();
+    public void setNickName(String nickname) {
+        this.nickname = nickname == null ? null : nickname.trim();
     }
 
     public String getTimeStamp() {
-        return timeStamp;
+        return createTime;
     }
 
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTimeStamp(String createTime) {
+        this.createTime = createTime;
     }
 
     public String getpContent() {
-        return pContent;
+        return content;
     }
 
-    public void setpContent(String pContent) {
-        this.pContent = pContent == null ? null : pContent.trim();
+    public void setpContent(String content) {
+        this.content = content == null ? null : content.trim();
     }
 
     public String getImage() {
@@ -118,5 +120,13 @@ public class Post {
 
     public void setFavoritenum(Integer favoriteNum) {
         this.favoriteNum = favoriteNum;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

@@ -3,8 +3,7 @@ package com.edu.bupt.wechatpost.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Comment;
 import com.edu.bupt.wechatpost.model.Post;
-import com.edu.bupt.wechatpost.service.CommentService;
-import com.edu.bupt.wechatpost.service.PostService;
+import com.edu.bupt.wechatpost.service.PostCommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +14,13 @@ import java.util.List;
 @RequestMapping("/api/v1/wechatPost")
 public class Controller {
 
+//    @Autowired
+//    private CommentService commentService;
+//
+//    @Autowired
+//    private PostService postService;
     @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private PostService postService;
+    private PostCommentService postCommentService;
 
 
 //    @RequestMapping(value = "/findAllPosts", method = RequestMethod.GET)
@@ -32,46 +33,58 @@ public class Controller {
     @RequestMapping(value = "/findAllPosts", method = RequestMethod.POST)
     @ResponseBody
     public JSONObject findAllPost(@RequestParam(value="openId", required = false) String openId , Integer page) throws Exception{
-        List<Post> posts = postService.findAll(openId, page);
         JSONObject result = new JSONObject();
-        for (Post post:posts){
-            List<Comment> comments = null;
-            try {
-                comments = commentService.findByPostId(post.getpId(), 0);
-            } catch (Exception e){
-                e.printStackTrace();;
+        try {
+            List<Post> posts = postCommentService.findAllPosts(openId, page);
+            if (posts.size() != 0){
+                result.put("data", posts);
+            } else {
+                result.put("data",0);
             }
-            result.put("post"+post.getpId().toString(), post);
-            if(comments != null){
-                result.put("comments"+post.getpId().toString(),comments);
-            }
-            System.out.println(comments);
+            return result;
+        } catch (Exception e){
+            e.printStackTrace();
+            result.put("errorMsg",e.getMessage());
+            result.put("data",0);
+            return result;
         }
-        return result;
     }
 
-    @RequestMapping(value = "/findAPost", method = RequestMethod.GET)
-    @ResponseBody
-    public Post findAPost(String openId, Integer pId){
-        Post result = postService.findAPost(openId, pId);
-        return result;
-    }
+//    @RequestMapping(value = "/findAPost", method = RequestMethod.GET)
+//    @ResponseBody
+//    public Post findAPost(String openId, Integer pId){
+//        Post result = postCommentService.findAPost(openId, pId);
+//        return result;
+//    }
 
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ResponseBody
-    public List<Post> findPosts(String searchText, Integer page) {
-        List<Post> results = postService.findPost(searchText, page);
-        return results;
+    public JSONObject findPosts(String searchText, Integer page) throws Exception{
+        JSONObject result = new JSONObject();
+        try {
+            List<Post> posts = postCommentService.searchPosts(searchText, page);
+            if (posts.size() != 0){
+                result.put("data", posts);
+            } else{
+                result.put("data",0);
+            }
+            return result;
+        } catch (Exception e){
+            e.printStackTrace();
+            result.put("errorMsg",e.getMessage());
+            result.put("data",0);
+            return result;
+        }
     }
 
-    @RequestMapping(value = "/addPost", method = RequestMethod.GET)
+    @RequestMapping(value = "/addPost", method = RequestMethod.POST)
     @ResponseBody
-    public Integer addPost(String openId, String nickName, String pAvator, String pContent, String image, String location) throws Exception {
+        public Integer addPost(String openId, String nickName, String avatar, String content, String image, String location) throws Exception {
         try {
             java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm");
             String s = format.format(new Date());
-            Post myPost = new Post(openId, pAvator, nickName, s, pContent,image, location, 0);
-            postService.addPost(myPost);
+            Post myPost = new Post(openId, avatar, nickName, s, content,image, location, 0);
+            postCommentService.publishPost(myPost);
             return 1;
         } catch(Exception e){
             e.printStackTrace();
@@ -79,45 +92,45 @@ public class Controller {
         }
     }
 
-    @RequestMapping(value = "/deletePost", method = RequestMethod.GET)
+    @RequestMapping(value = "/deletePost", method = RequestMethod.POST)
     @ResponseBody
-    public Integer deletePost(String openId, Integer pId){
-        return postService.deletePost(openId,pId);
+    public Integer deletePost(Integer pId){
+        return postCommentService.deletePost(pId);
     }
 
-    @RequestMapping(value = "/updatePost", method = RequestMethod.GET)
+//    @RequestMapping(value = "/updatePost", method = RequestMethod.POST)
+//    @ResponseBody
+//    public Integer updatePost(String openId, Integer pId, String nickName, String avatar, String content, String image, String location){
+//        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm");
+//        String s = format.format(new Date());
+//        Post myPost = new Post(pId, openId, avatar, nickName, s, content, image, location, 0);
+//        return  postService.updatePost(myPost);
+//    }
+
+    @RequestMapping(value = "/favorite", method = RequestMethod.POST)
     @ResponseBody
-    public Integer updatePost(String openId, Integer pId, String nickName, String pAvator, String pContent, String image, String location){
-        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm");
-        String s = format.format(new Date());
-        Post myPost = new Post(pId, openId, pAvator, nickName, s, pContent, image, location, 0);
-        return  postService.updatePost(myPost);
+    public Integer updateFavoriteNum(Integer pId, Integer num){
+        return postCommentService.favorite(pId, num);
     }
 
-    @RequestMapping(value = "/favorite", method = RequestMethod.GET)
-    @ResponseBody
-    public Integer updateFavoriteNum(String nickName, Integer pId, Integer num){
-        return postService.updateFavoriteNum(nickName, pId, num);
-    }
+//    @RequestMapping(value = "/findComment", method = RequestMethod.GET)
+//    @ResponseBody
+//    public List<Comment> findAllCommentByPostId(Integer pId, Integer page) throws Exception{
+//        try {
+//            List<Comment> myComment = commentService.findByPostId(pId, page);
+//            return myComment;
+//        } catch (Exception e) {
+//            e.printStackTrace();;
+//            return null;
+//        }
+//    }
 
-    @RequestMapping(value = "/findComment", method = RequestMethod.GET)
-    @ResponseBody
-    public List<Comment> findAllCommentByPostId(Integer pId, Integer page) throws Exception{
-        try {
-            List<Comment> myComment = commentService.findByPostId(pId, page);
-            return myComment;
-        } catch (Exception e) {
-            e.printStackTrace();;
-            return null;
-        }
-    }
-
-    @RequestMapping(value = "/addComment", method = RequestMethod.GET)
+    @RequestMapping(value = "/addComment", method = RequestMethod.POST)
     @ResponseBody
     public Integer addComment(Integer pId, String nickName, String cContent)throws Exception{
         try{
             Comment comment = new Comment(pId, nickName, cContent);
-            commentService.addComment(comment);
+            postCommentService.addComment(comment);
             return 1;
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,9 +138,9 @@ public class Controller {
         }
     }
 
-    @RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
+    @RequestMapping(value = "/deleteComment", method = RequestMethod.POST)
     @ResponseBody
-    public Integer deleteComment(Integer pId, Integer cId) {
-        return commentService.deleteComment(pId,cId);
+    public Integer deleteComment(Integer cId) {
+        return postCommentService.deleteComment(cId);
     }
 }

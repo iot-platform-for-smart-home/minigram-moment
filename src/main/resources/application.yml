@@ -4,7 +4,9 @@ server:
 spring:
     datasource:
         url: jdbc:mysql://10.108.218.108:3306/BUPT_IOT?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+#        url: jdbc:mysql://localhost:3306/BUPt_IOT?useUnicode=true&characterEncoding=UTF-8
         username: root
+#        username: root
         password: 123
         driver-class-name: com.mysql.jdbc.Driver
 

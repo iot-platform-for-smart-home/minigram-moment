@@ -1,25 +1,25 @@
 package com.edu.bupt.wechatpost.model;
 
 public class Comment {
-    private Integer cId;
+    private Integer id;
 
-    private Integer pId;
+    private Integer p_id;
 
-    private String nickName;
+    private String nickname;
 
-    private String cContent;
+    private String c_content;
 
-    public Comment(Integer cId, Integer pId, String nickName, String cContent) {
-        this.cId = cId;
-        this.pId = pId;
-        this.nickName = nickName;
-        this.cContent = cContent;
+    public Comment(Integer id, Integer p_id, String nickname, String c_content) {
+        this.id = id;
+        this.p_id = p_id;
+        this.nickname = nickname;
+        this.c_content = c_content;
     }
 
-    public Comment(Integer pId, String nickName, String cContent) {
-        this.pId = pId;
-        this.nickName = nickName;
-        this.cContent = cContent;
+    public Comment(Integer p_id, String nickname, String c_content) {
+        this.p_id = p_id;
+        this.nickname = nickname;
+        this.c_content = c_content;
     }
 
     public Comment() {
@@ -27,34 +27,34 @@ public class Comment {
     }
 
     public Integer getcId() {
-        return cId;
+        return id;
     }
 
-    public void setcId(Integer cId) {
-        this.cId = cId;
+    public void setcId(Integer id) {
+        this.id = id;
     }
 
     public Integer getpId() {
-        return pId;
+        return p_id;
     }
 
-    public void setpId(Integer pId) {
-        this.pId = pId;
+    public void setpId(Integer p_id) {
+        this.p_id = p_id;
     }
 
     public String getNickName() {
-        return nickName;
+        return nickname;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName == null ? null : nickName.trim();
+    public void setNickName(String nickname) {
+        this.nickname = nickname == null ? null : nickname.trim();
     }
 
     public String getcContent() {
-        return cContent;
+        return c_content;
     }
 
-    public void setcContent(String cContent) {
-        this.cContent = cContent == null ? null : cContent.trim();
+    public void setcContent(String c_content) {
+        this.c_content = c_content == null ? null : c_content.trim();
     }
 }
