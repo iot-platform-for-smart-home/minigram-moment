@@ -16,6 +16,8 @@ public class DataServiceImpl implements DataService {
     private static final Logger logger = LoggerFactory.getLogger(DataServiceImpl.class);
 
     private final String serverIp = "http://47.104.8.164:80/"; // ip域名（端口号）
+//    private final String serverIp = "http://localhost:80/"; // ip域名（端口号）
+    private final String downloadInterface = "api/v1/wechatPost/download?";
     private final String imageBasePath = System.getProperty("user.dir").replace("\\","/")+"/image/";
 
     @Override
@@ -44,51 +46,33 @@ public class DataServiceImpl implements DataService {
                 logger.info("上传文件失败\n" + e.getMessage());
             }
         }
-        return serverIp+ "api/v1/wechatPost/download?imageName=" + imageName;
+        return serverIp + downloadInterface + "imageName=" + imageName;
     }
 
     @Override
     public void downloadImage(String imageName, HttpServletRequest request, HttpServletResponse response) throws IOException{
 //        if(imageName == "") return 0;  // 空文件名，返回false
         if(imageName != "") {
+            FileInputStream is = null;
             String imageUrl = imageBasePath + imageName;
-            File image = new File(imageUrl);
-            if (image.exists()) {
-                logger.info("正在加载图片...");
-                response.setContentType("application/force-download");// 设置强制下载不打开
-                // response.addHeader("Content-Disposition","attachment;fileName=" + imageName);// 设置文件名
-                byte[] buffer = new byte[1024 * 1024 * 8];
-                FileInputStream fis = null;
-                BufferedInputStream bis = null;
+            try {
+                File imageFile = new File(imageUrl);
+                is = new FileInputStream(imageFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            if(is != null){
+                int length = is.available();
+                byte[] buffer = new byte[length];
                 try {
-                    fis = new FileInputStream(imageUrl);
-                    bis = new BufferedInputStream(fis);
+                    is.read(buffer);
+                    is.close();
                     OutputStream os = response.getOutputStream();
-                    int i = bis.read(buffer);
-                    while (i != -1) {
-                        os.write(buffer, 0, i);
-                        i = bis.read(buffer);
-                    }
-                    logger.info("加载图片成功");
-//                    return  1;
+                    os.write(buffer);
+                    os.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                     logger.info("加载图片失败\n" + e.getMessage());
-                } finally {
-                    if (bis != null) {
-                        try {
-                            bis.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (fis != null) {
-                        try {
-                            fis.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
                 }
             }
         }
