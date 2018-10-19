@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/wechatPost")
-public class Controller {
+public class WechatPostController {
 
     @Autowired
     private PostCommentService postCommentService;
@@ -26,13 +26,8 @@ public class Controller {
     @Autowired
     private DataService dataService;
 
-    private final static Logger logger = LoggerFactory.getLogger(Controller.class);
-
-//    @RequestMapping(value = "test", method = RequestMethod.POST)
-//    @ResponseBody
-//    public String test(){
-//        return System.getProperty("user.dir");
-//    }
+    private final static Logger logger = LoggerFactory.getLogger(WechatPostController.class);
+    
 
     @RequestMapping(value = "/findAllPosts", method = RequestMethod.POST)
     @ResponseBody
