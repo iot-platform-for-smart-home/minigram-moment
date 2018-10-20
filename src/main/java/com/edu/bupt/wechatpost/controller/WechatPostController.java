@@ -27,7 +27,7 @@ public class WechatPostController {
     private DataService dataService;
 
     private final static Logger logger = LoggerFactory.getLogger(WechatPostController.class);
-    
+
 
     @RequestMapping(value = "/findAllPosts", method = RequestMethod.POST)
     @ResponseBody

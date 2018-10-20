@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Result;
 import com.squareup.okhttp.*;
 import com.squareup.okhttp.RequestBody;
+import okhttp3.WebSocket;
+import okio.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -238,12 +240,12 @@ public class DeviceAccessController {
         return result;
     }
 
-    @RequestMapping(value = "/unassign/group/{groupId}/{deviceId}", method = RequestMethod.GET)  //405
+    @RequestMapping(value = "/unassign/group/{groupId}/{deviceId}", method = RequestMethod.DELETE)
     @ResponseBody
     public String cancelAssignDeviceToGroup(@PathVariable("groupId") String GroupId, @PathVariable("deviceId") String deviceId) throws Exception{
         Request request = new Request.Builder()
                 .url(BASEURL + "unassign/group/"+ GroupId + "/"+ deviceId)
-                .get()
+                .delete()
                 .build();
         Response response = client.newCall(request).execute();
         String result = new String();
@@ -284,7 +286,7 @@ public class DeviceAccessController {
         return result;
     }
 
-    @RequestMapping(value = "/rpc/{deviceId}/{requestId}", method = RequestMethod.POST)//400
+    @RequestMapping(value = "/rpc/{deviceId}/{requestId}", method = RequestMethod.POST)
     @ResponseBody
     public String controlDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message,
                                     @PathVariable("deviceId")String deviceId,
@@ -305,10 +307,40 @@ public class DeviceAccessController {
         return result;
     }
 
-    @RequestMapping(value = "controlDevice", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/websocket", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
-    public String websocket()throws Exception{
-        String result = new String();
-        return result;
+    public WebSocket websocket()throws Exception{
+        WebSocket webSocket = new WebSocket() {
+            @Override
+            public okhttp3.Request request() {
+                return new okhttp3.Request.Builder().build();
+            }
+
+            @Override
+            public long queueSize() {
+                return 0;
+            }
+
+            @Override
+            public boolean send(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean send(ByteString byteString) {
+                return false;
+            }
+
+            @Override
+            public boolean close(int i, String s) {
+                return false;
+            }
+
+            @Override
+            public void cancel() {
+
+            }
+        };
+        return webSocket;
     }
 }
