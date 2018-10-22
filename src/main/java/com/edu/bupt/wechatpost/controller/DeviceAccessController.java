@@ -2,12 +2,12 @@ package com.edu.bupt.wechatpost.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Result;
-import com.squareup.okhttp.*;
-import com.squareup.okhttp.RequestBody;
-import okhttp3.WebSocket;
-import okio.ByteString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.RequestBody;
 import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,7 +18,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/deviceaccess")
 public class DeviceAccessController {
-    private static final Logger logger = LoggerFactory.getLogger(DeviceAccessController.class);
 
     private static String BASEURL = "http://47.105.120.203:30080/api/v1/deviceaccess/";
 
@@ -307,40 +306,40 @@ public class DeviceAccessController {
         return result;
     }
 
-    @RequestMapping(value = "/websocket", method = {RequestMethod.POST, RequestMethod.GET})
-    @ResponseBody
-    public WebSocket websocket()throws Exception{
-        WebSocket webSocket = new WebSocket() {
-            @Override
-            public okhttp3.Request request() {
-                return new okhttp3.Request.Builder().build();
-            }
-
-            @Override
-            public long queueSize() {
-                return 0;
-            }
-
-            @Override
-            public boolean send(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean send(ByteString byteString) {
-                return false;
-            }
-
-            @Override
-            public boolean close(int i, String s) {
-                return false;
-            }
-
-            @Override
-            public void cancel() {
-
-            }
-        };
-        return webSocket;
-    }
+//    @RequestMapping(value = "/websocket", method = {RequestMethod.POST, RequestMethod.GET})
+//    @ResponseBody
+//    public WebSocket websocket()throws Exception{
+//        WebSocket webSocket = new WebSocket() {
+//            @Override
+//            public okhttp3.Request request() {
+//                return new okhttp3.Request.Builder().build();
+//            }
+//
+//            @Override
+//            public long queueSize() {
+//                return 0;
+//            }
+//
+//            @Override
+//            public boolean send(String s) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean send(ByteString byteString) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean close(int i, String s) {
+//                return false;
+//            }
+//
+//            @Override
+//            public void cancel() {
+//
+//            }
+//        };
+//        return webSocket;
+//    }
 }
