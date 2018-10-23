@@ -7,7 +7,7 @@ server:
         keyAlias: 1
 
 wechat:
-    server: http://47.104.8.164:80/
+    server: https://47.104.8.164:80/
 
 
 spring:
