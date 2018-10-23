@@ -28,7 +28,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -44,7 +44,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -60,7 +60,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -80,7 +80,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -102,7 +102,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -127,7 +127,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -145,7 +145,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -161,7 +161,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -177,7 +177,7 @@ public class ServiceManagement {
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;
@@ -185,17 +185,17 @@ public class ServiceManagement {
 
     @RequestMapping(value = "/ability/{manufacturerName}/{deviceTypeName}/{modelName}", method = RequestMethod.GET)
     @ResponseBody
-    public String findAbilitiesByModelId(@PathVariable("manufacturerName")String manufacturerName,
+    public String findAbilitiesByThreeTouple(@PathVariable("manufacturerName")String manufacturerName,
                                          @PathVariable("deviceTypeName")String deviceTypeName,
                                          @PathVariable("modelName")String modelName)throws IOException {
         Request request = new Request.Builder()
-                .url(BASEURL + manufacturerName + "/" + deviceTypeName + "/" + modelName)
+                .url(BASEURL + "ability/" + manufacturerName + "/" + deviceTypeName + "/" + modelName)
                 .get()
                 .build();
         Response response = client.newCall(request).execute();
         String result = new String();
         if(response.isSuccessful()){
-            result = response.body().toString();
+            result = response.body().string();
             System.out.println(result);
         }
         return result;

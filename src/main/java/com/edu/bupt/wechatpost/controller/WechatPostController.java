@@ -175,16 +175,15 @@ public class WechatPostController {
         String  returnvalue=GET(url);
         System.out.println(url);//打印发起请求的url
         System.out.println(returnvalue);//打印调用GET方法返回值
-        //定义一个json对象。
-        JSONObject convertvalue=new JSONObject();
         //将得到的字符串转换为json
-        convertvalue=(JSONObject) JSONObject.parse(returnvalue);
+        JSONObject convertvalue=(JSONObject) JSONObject.parse(returnvalue);
         System.out.println("return openid is ："+(String)convertvalue.get("openid")); //打印得到的openid
         System.out.println("return sessionkey is ："+(String)convertvalue.get("session_key"));//打印得到的sessionkey，
         //把openid和sessionkey分别赋值给openid和sessionkey
         String openid=(String) convertvalue.get("openid");
         String sessionkey=(String) convertvalue.get("session_key");//定义两个变量存储得到的openid和session_key.
-
+        Integer errcode = (Integer) convertvalue.get("errcode");
+        String errMsg = (String) convertvalue.get("errMsg");
         return openid;//返回openid
 
 //        Request request = new Request.Builder()

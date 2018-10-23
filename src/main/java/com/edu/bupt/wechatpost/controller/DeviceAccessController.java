@@ -23,6 +23,43 @@ public class DeviceAccessController {
 
     private static OkHttpClient client = new OkHttpClient();
 
+    @RequestMapping(value = "/assignAll/{customerId}", method = RequestMethod.GET)
+    @ResponseBody
+    public Integer assignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_user") String gateway_user)throws IOException{
+        System.out.print("扫码分配设备：");
+        Request request = new Request.Builder()
+                .get()
+                .url(BASEURL + "assignAll/"+customerId+"?gateway_user="+gateway_user)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result+"\n");
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    @RequestMapping(value = "/device", method = RequestMethod.POST)
+    @ResponseBody
+    public String createDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message) throws Exception{
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, message.toJSONString());
+        Request request = new Request.Builder()
+                .url(BASEURL + "device")
+                .post(body)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result);
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/device/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
     public String getDeviceById(@PathVariable("deviceId")String deviceId)throws IOException{
@@ -177,11 +214,11 @@ public class DeviceAccessController {
          return result;
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.DELETE)  // 405 方法错误
+    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteDevice(String groupId)throws Exception{
+    public String deleteDevice(@PathVariable("groupId") String groupId)throws Exception{
         Request request = new Request.Builder()
-                .url(BASEURL + "group?groupId=" + groupId)
+                .url(BASEURL + "group/" + groupId)
                 .delete()
                 .build();
         Response response = client.newCall(request).execute();
@@ -195,7 +232,7 @@ public class DeviceAccessController {
 
     @RequestMapping(value = "/group/devices/{groupId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getCustomerdevices(@PathVariable("groupId")Integer groupId, Integer limit,
+    public String getCustomerdevices(@PathVariable("groupId")String groupId, Integer limit,
                                          @RequestParam(value = "textSearch", required = false)String textSearch,
                                          @RequestParam(value = "idOffset", required = false)String idOffset,
                                          @RequestParam(value = "textOffset",required = false)String textOffset)
@@ -219,6 +256,9 @@ public class DeviceAccessController {
         if(response.isSuccessful()){
             result = response.body().string();
             System.out.println(result);
+        }
+        if(result == ""){
+            result = "[]";
         }
         return result;
     }
@@ -301,7 +341,12 @@ public class DeviceAccessController {
         String result = new String();
         if(response.isSuccessful()){
             result = response.body().string();
-            System.out.println(result);
+            System.out.println("result=" + result);
+        }
+        if(result ==""){
+            Result resultJson = new Result();
+            resultJson.setStatus("success");
+            return resultJson.toString();
         }
         return result;
     }
