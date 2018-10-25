@@ -5,10 +5,6 @@ import com.edu.bupt.wechatpost.model.Comment;
 import com.edu.bupt.wechatpost.model.Post;
 import com.edu.bupt.wechatpost.service.DataService;
 import com.edu.bupt.wechatpost.service.PostCommentService;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,20 +41,22 @@ public class WechatPostController {
     public JSONObject findAllPost(@RequestBody JSONObject message) throws Exception{
         logger.info("查询消息...");
         JSONObject result = new JSONObject();
+        String openId = message.getString("openId");
+        Integer page = message.getInteger("page");
         try {
-            String openId = message.getString("openId");
-            Integer page = message.getInteger("page");
             List<Post> posts = postCommentService.findAllPosts(openId, page);
             if (posts.size() != 0){
                 result.put("data", posts);
             } else {
                 result.put("data",0);
             }
+            logger.info("查询成功！");
             return result;
         } catch (Exception e){
             e.printStackTrace();
             result.put("errorMsg",e.getMessage());
             result.put("data",0);
+            logger.info("查询失败");
             return result;
         }
     }
@@ -89,24 +87,62 @@ public class WechatPostController {
         }
     }
 
-    @RequestMapping(value = "/addPost", method = RequestMethod.POST)
+    @RequestMapping(value = "/addPostJson", method = RequestMethod.POST)
     @ResponseBody
-        public Integer addPost(@RequestParam(value = "image", required = false) MultipartFile image,String openId, String nickName,
-                               String avatar, String content, String location) throws Exception {
-        try {
-            logger.info("发布消息...");
-            String staticImageUrl = dataService.uploadImage(image);
-            java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm");
-            String s = format.format(new Date());
-            Post myPost = new Post(openId, avatar, nickName, s, content, staticImageUrl, location, 0);
-            logger.info("发布成功\n" + myPost.toString());
-            postCommentService.publishPost(myPost);
-            return 1;
-        } catch(Exception e){
-            logger.info("发布失败\n"+ e.getMessage());
-            e.printStackTrace();
-            return 0;
+    public Integer addPost(@RequestBody JSONObject message) throws Exception {
+        logger.info("发布消息...");
+        String openId = message.getString("openId");
+        String nickName = message.getString("nickName");
+        String avatar = message.getString("avatar");
+        String content = message.getString("content");
+        String location = message.getString("location");
+        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String s = format.format(new Date());
+        if(openId != null){
+            try {
+                Post myPost = new Post(openId, avatar, nickName, s, content, "", location, 0);
+                postCommentService.publishPost(myPost);
+                logger.info("发布成功\n" + myPost.toString());
+                return 1;
+            } catch(Exception e){
+                logger.info("发布失败\n"+ e.getMessage());
+                e.printStackTrace();
+            }
+        }else{
+            logger.info("openId 为空");
         }
+        return 0;
+    }
+
+    @RequestMapping(value = "/addPostFormData", method = RequestMethod.POST)
+    @ResponseBody
+        public Integer addPost(@RequestParam(value = "image", required = false) MultipartFile image,
+                               @RequestParam(value = "openId") String openId,
+                               @RequestParam(value = "nickName") String nickName,
+                               @RequestParam(value = "avatar") String avatar,
+                               @RequestParam(value = "content") String content,
+                               @RequestParam(value = "location") String location
+                               ) throws Exception {
+        logger.info("发布消息...");
+        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String s = format.format(new Date());
+        if(openId != null){
+            try {
+                String staticImageUrl = dataService.uploadImage(image);
+                if(!staticImageUrl.equals("")){
+                    Post myPost = new Post(openId, avatar, nickName, s, content, staticImageUrl, location, 0);
+                    postCommentService.publishPost(myPost);
+                    logger.info("发布成功\n" + myPost.toString());
+                    return 1;
+                }
+            } catch(Exception e){
+                logger.info("发布失败\n"+ e.getMessage());
+                e.printStackTrace();
+            }
+        }else{
+            logger.info("openId 为空");
+        }
+        return 0;
     }
 
     @RequestMapping(value = "/download",method=RequestMethod.GET)
@@ -141,10 +177,10 @@ public class WechatPostController {
     @RequestMapping(value = "/addComment", method = RequestMethod.POST)
     @ResponseBody
     public Integer addComment(@RequestBody JSONObject message)throws Exception{
+        Integer pId = message.getInteger("pId");
+        String nickName = message.getString("nickName");
+        String cContent = message.getString("cContent");
         try{
-            Integer pId = message.getInteger("pId");
-            String nickName = message.getString("nickName");
-            String cContent = message.getString("cContent");
             Comment comment = new Comment(pId, nickName, cContent);
             postCommentService.addComment(comment);
             return 1;
@@ -175,11 +211,11 @@ public class WechatPostController {
         String  returnvalue=GET(url);
         System.out.println(url);//打印发起请求的url
         System.out.println(returnvalue);//打印调用GET方法返回值
-        //将得到的字符串转换为json
+        // 将得到的字符串转换为json
         JSONObject convertvalue=(JSONObject) JSONObject.parse(returnvalue);
         System.out.println("return openid is ："+(String)convertvalue.get("openid")); //打印得到的openid
         System.out.println("return sessionkey is ："+(String)convertvalue.get("session_key"));//打印得到的sessionkey，
-        //把openid和sessionkey分别赋值给openid和sessionkey
+        // 把openid和sessionkey分别赋值给openid和sessionkey
         String openid=(String) convertvalue.get("openid");
         String sessionkey=(String) convertvalue.get("session_key");//定义两个变量存储得到的openid和session_key.
         Integer errcode = (Integer) convertvalue.get("errcode");
