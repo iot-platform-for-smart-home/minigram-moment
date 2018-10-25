@@ -1,5 +1,6 @@
 package com.edu.bupt.wechatpost.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.service.DataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,8 @@ public class DataServiceImpl implements DataService {
     private static final Logger logger = LoggerFactory.getLogger(DataServiceImpl.class);
 
     private final String serverIp = "https://smart.gantch.cn/"; // ip域名（端口号）
-//    private final String serverIp = "https://47.104.8.164:80/"; // ip域名（端口号）
-//    private final String serverIp = "http://localhost:80/"; // ip域名（端口号）
+//    private final String serverIp = "https://47.104.8.164:80/"; // 服务器ip域名（端口号）
+//    private final String serverIp = "http://localhost:80/"; // 本地（端口号）
     private final String downloadInterface = "api/v1/wechatPost/download?";
     private final String imageBasePath = System.getProperty("user.dir").replace("\\","/")+"/image/";
 
@@ -25,16 +26,18 @@ public class DataServiceImpl implements DataService {
     public String uploadImage(MultipartFile image) throws IOException {
         logger.info("正在上传图片...");
         String imageName = "";
+//        JSONObject imageJson = new JSONObject();
         if(image != null){
+//            System.out.println(image.length);
+//            for(int i = 0; i < image.length; i++ ) {
+            imageName = image.getOriginalFilename();
+            //  图片类型
+            String suffixName = imageName.substring(imageName.lastIndexOf("."));
+            //  随机字符串重命名图片，解决liunx下中文路径的图片显示问题
+            imageName = UUID.randomUUID() + suffixName;
+            logger.info("上传的图片名为：" + imageName);
+            String imageUrl = imageBasePath + imageName;
             try {
-                //  图片名字
-                imageName = image.getOriginalFilename();
-                //  图片类型
-                String suffixName = imageName.substring(imageName.lastIndexOf("."));
-                //  随机字符串重命名图片，解决liunx下中文路径的图片显示问题
-                imageName = UUID.randomUUID() + suffixName;
-                logger.info("上传的图片名为：" + imageName);
-                String imageUrl = imageBasePath + imageName;
                 //  打开文件流，若目录不存在则新建
                 File downloadFile = new File(imageUrl);
                 if (!downloadFile.getParentFile().exists()) {
@@ -42,18 +45,22 @@ public class DataServiceImpl implements DataService {
                 }
                 //  保存文件到后台服务器
                 image.transferTo(downloadFile);
-                logger.info("上传图片成功，保存路径为: " + imageUrl + "\n访问路径为: " + serverIp+ "api/v1/wechatPost/download?imageName=" + imageName);
+                String imagePath = serverIp + downloadInterface + "imageName=" + imageName;
+                logger.info("上传图片成功，保存路径为: " + imageUrl);
+                logger.info( "访问路径为: " + imagePath);
+                return imagePath;
+//                imageJson.put("image"+i, imagePath);
             } catch (IOException e) {
                 logger.info("上传文件失败\n" + e.getMessage());
             }
         }
-        return serverIp + downloadInterface + "imageName=" + imageName;
+        return "";
     }
 
     @Override
     public void downloadImage(String imageName, HttpServletRequest request, HttpServletResponse response) throws IOException{
-//        if(imageName == "") return 0;  // 空文件名，返回false
-        if(imageName != "") {
+        logger.info("正在下载图片...");
+        if(!imageName.equals("")) {
             FileInputStream is = null;
             String imageUrl = imageBasePath + imageName;
             try {
@@ -71,6 +78,7 @@ public class DataServiceImpl implements DataService {
                     OutputStream os = response.getOutputStream();
                     os.write(buffer);
                     os.close();
+                    logger.info("加载图片成功！");
                 } catch (IOException e) {
                     e.printStackTrace();
                     logger.info("加载图片失败\n" + e.getMessage());

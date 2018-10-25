@@ -114,7 +114,7 @@ public class WechatPostController {
         return 0;
     }
 
-    @RequestMapping(value = "/addPostFormData", method = RequestMethod.POST)
+    @RequestMapping(value = "/addPost", method = RequestMethod.POST)
     @ResponseBody
         public Integer addPost(@RequestParam(value = "image", required = false) MultipartFile image,
                                @RequestParam(value = "openId") String openId,

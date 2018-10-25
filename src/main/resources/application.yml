@@ -1,10 +1,10 @@
 server:
     port: 80
-    ssl:
-        key-store: classpath:server.p12
-        key-store-password: 1540975363258
-        keyStoreType: PKCS12
-        keyAlias: 1
+#    ssl:
+#        key-store: classpath:server.p12
+#        key-store-password: 1540975363258
+#        keyStoreType: PKCS12
+#        keyAlias: 1
 
 wechat:
     server: https://47.104.8.164:80/

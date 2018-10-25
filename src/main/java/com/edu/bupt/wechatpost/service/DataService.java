@@ -8,6 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface DataService {
-    String uploadImage(MultipartFile image) throws IOException;
+    String uploadImage(MultipartFile images) throws IOException;
     void downloadImage(String imageUrl, HttpServletRequest request, HttpServletResponse response)throws IOException;
 }
