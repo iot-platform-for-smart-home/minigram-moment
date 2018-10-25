@@ -9,6 +9,7 @@ public class Comment {
 
     private String c_content;
 
+
     public Comment(Integer id, Integer p_id, String nickname, String c_content) {
         this.id = id;
         this.p_id = p_id;
@@ -56,5 +57,15 @@ public class Comment {
 
     public void setcContent(String c_content) {
         this.c_content = c_content == null ? null : c_content.trim();
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", p_id=" + p_id +
+                ", nickname='" + nickname + '\'' +
+                ", c_content='" + c_content + '\'' +
+                '}';
     }
 }

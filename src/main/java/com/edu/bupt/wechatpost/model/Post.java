@@ -11,6 +11,22 @@ public class Post {
 
     private String nickname;
 
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", openid='" + openid + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", content='" + content + '\'' +
+                ", image='" + image + '\'' +
+                ", location='" + location + '\'' +
+                ", favoriteNum=" + favoriteNum +
+                ", comments=" + comments +
+                '}';
+    }
+
     private String createTime;
 
     private String content;
