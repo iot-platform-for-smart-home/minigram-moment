@@ -15,7 +15,8 @@ import java.util.UUID;
 public class DataServiceImpl implements DataService {
     private static final Logger logger = LoggerFactory.getLogger(DataServiceImpl.class);
 
-    private final String serverIp = "http://47.104.8.164:80/"; // ip域名（端口号）
+    private final String serverIp = "https://smart.gantch.cn/"; // ip域名（端口号）
+//    private final String serverIp = "https://47.104.8.164:80/"; // ip域名（端口号）
 //    private final String serverIp = "http://localhost:80/"; // ip域名（端口号）
     private final String downloadInterface = "api/v1/wechatPost/download?";
     private final String imageBasePath = System.getProperty("user.dir").replace("\\","/")+"/image/";

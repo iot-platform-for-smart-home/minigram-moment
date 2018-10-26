@@ -2,12 +2,12 @@ package com.edu.bupt.wechatpost.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Result;
-import com.squareup.okhttp.*;
-import com.squareup.okhttp.RequestBody;
-import okhttp3.WebSocket;
-import okio.ByteString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.RequestBody;
 import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,11 +18,47 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/deviceaccess")
 public class DeviceAccessController {
-    private static final Logger logger = LoggerFactory.getLogger(DeviceAccessController.class);
 
     private static String BASEURL = "http://47.105.120.203:30080/api/v1/deviceaccess/";
 
     private static OkHttpClient client = new OkHttpClient();
+
+    @RequestMapping(value = "/assignAll/{customerId}", method = RequestMethod.GET)
+    @ResponseBody
+    public Integer assignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_user") String gateway_user)throws IOException{
+        System.out.print("扫码分配设备：");
+        Request request = new Request.Builder()
+                .get()
+                .url(BASEURL + "assignAll/"+customerId+"?gateway_user="+gateway_user)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result+"\n");
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    @RequestMapping(value = "/device", method = RequestMethod.POST)
+    @ResponseBody
+    public String createDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message) throws Exception{
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, message.toJSONString());
+        Request request = new Request.Builder()
+                .url(BASEURL + "device")
+                .post(body)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result);
+        }
+        return result;
+    }
 
     @RequestMapping(value = "/device/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
@@ -178,11 +214,11 @@ public class DeviceAccessController {
          return result;
     }
 
-    @RequestMapping(value = "/group", method = RequestMethod.DELETE)  // 405 方法错误
+    @RequestMapping(value = "/group/{groupId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteDevice(String groupId)throws Exception{
+    public String deleteDevice(@PathVariable("groupId") String groupId)throws Exception{
         Request request = new Request.Builder()
-                .url(BASEURL + "group?groupId=" + groupId)
+                .url(BASEURL + "group/" + groupId)
                 .delete()
                 .build();
         Response response = client.newCall(request).execute();
@@ -196,7 +232,7 @@ public class DeviceAccessController {
 
     @RequestMapping(value = "/group/devices/{groupId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getCustomerdevices(@PathVariable("groupId")Integer groupId, Integer limit,
+    public String getCustomerdevices(@PathVariable("groupId")String groupId, Integer limit,
                                          @RequestParam(value = "textSearch", required = false)String textSearch,
                                          @RequestParam(value = "idOffset", required = false)String idOffset,
                                          @RequestParam(value = "textOffset",required = false)String textOffset)
@@ -220,6 +256,9 @@ public class DeviceAccessController {
         if(response.isSuccessful()){
             result = response.body().string();
             System.out.println(result);
+        }
+        if(result == ""){
+            result = "[]";
         }
         return result;
     }
@@ -302,45 +341,50 @@ public class DeviceAccessController {
         String result = new String();
         if(response.isSuccessful()){
             result = response.body().string();
-            System.out.println(result);
+            System.out.println("result=" + result);
+        }
+        if(result ==""){
+            Result resultJson = new Result();
+            resultJson.setStatus("success");
+            return resultJson.toString();
         }
         return result;
     }
 
-    @RequestMapping(value = "/websocket", method = {RequestMethod.POST, RequestMethod.GET})
-    @ResponseBody
-    public WebSocket websocket()throws Exception{
-        WebSocket webSocket = new WebSocket() {
-            @Override
-            public okhttp3.Request request() {
-                return new okhttp3.Request.Builder().build();
-            }
-
-            @Override
-            public long queueSize() {
-                return 0;
-            }
-
-            @Override
-            public boolean send(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean send(ByteString byteString) {
-                return false;
-            }
-
-            @Override
-            public boolean close(int i, String s) {
-                return false;
-            }
-
-            @Override
-            public void cancel() {
-
-            }
-        };
-        return webSocket;
-    }
+//    @RequestMapping(value = "/websocket", method = {RequestMethod.POST, RequestMethod.GET})
+//    @ResponseBody
+//    public WebSocket websocket()throws Exception{
+//        WebSocket webSocket = new WebSocket() {
+//            @Override
+//            public okhttp3.Request request() {
+//                return new okhttp3.Request.Builder().build();
+//            }
+//
+//            @Override
+//            public long queueSize() {
+//                return 0;
+//            }
+//
+//            @Override
+//            public boolean send(String s) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean send(ByteString byteString) {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean close(int i, String s) {
+//                return false;
+//            }
+//
+//            @Override
+//            public void cancel() {
+//
+//            }
+//        };
+//        return webSocket;
+//    }
 }
