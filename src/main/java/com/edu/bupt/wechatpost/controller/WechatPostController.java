@@ -13,15 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/wechatPost")
@@ -96,11 +90,12 @@ public class WechatPostController {
         String avatar = message.getString("avatar");
         String content = message.getString("content");
         String location = message.getString("location");
+        String images = message.getString("images");
         java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
         String s = format.format(new Date());
         if(openId != null){
             try {
-                Post myPost = new Post(openId, avatar, nickName, s, content, "", location, 0);
+                Post myPost = new Post(openId, avatar, nickName, s, content, images, location, 0);
                 postCommentService.publishPost(myPost);
                 logger.info("发布成功\n" + myPost.toString());
                 return 1;
@@ -138,11 +133,25 @@ public class WechatPostController {
             } catch(Exception e){
                 logger.info("发布失败\n"+ e.getMessage());
                 e.printStackTrace();
-            }
+        }
         }else{
             logger.info("openId 为空");
         }
         return 0;
+    }
+
+    @RequestMapping(value = "/uploadImage", method = RequestMethod.POST)
+    @ResponseBody
+    public String uploadImage(@RequestParam("image") MultipartFile image) throws IOException {
+        String result = new String();
+        if(image != null){
+            try {
+                result = dataService.uploadImage(image);
+            } catch(IOException e){
+                logger.info(e.getMessage());
+            }
+        }
+        return result;
     }
 
     @RequestMapping(value = "/download",method=RequestMethod.GET)
@@ -199,7 +208,7 @@ public class WechatPostController {
 
     @RequestMapping(value = "/getOpenId", method = RequestMethod.POST)
     @ResponseBody
-    public String getOpenId(@RequestBody JSONObject message)throws IOException {
+    public String getOpenId(@RequestBody JSONObject message)throws Exception{
         final String appid = "wx5ef2de2111a9a82a";
         final String secret = "e3658cc08939eb93cf45238c536ec1e6";
         final String JSCODE = message.getString("JSCODE");
@@ -208,7 +217,7 @@ public class WechatPostController {
                 .replace("APPID",appid)
                 .replace("SECRET",secret)
                 .replace("JSCODE",JSCODE);
-        String  returnvalue=GET(url);
+        String  returnvalue=dataService.GET(url);
         System.out.println(url);//打印发起请求的url
         System.out.println(returnvalue);//打印调用GET方法返回值
         // 将得到的字符串转换为json
@@ -237,43 +246,6 @@ public class WechatPostController {
 //            return jsonObject.getString("errMsg");
 //        }
 //        return "Bad Request!";
-    }
-
-    public static String GET(String url) {
-        String result = "";
-        BufferedReader in = null;
-        InputStream is = null;
-        InputStreamReader isr = null;
-        try {
-            URL realUrl = new URL(url);
-            URLConnection conn = realUrl.openConnection();
-            conn.connect();
-            Map<String, List<String>> map = conn.getHeaderFields();
-            is = conn.getInputStream();
-            isr = new InputStreamReader(is);
-            in = new BufferedReader(isr);
-            String line;
-            while ((line = in.readLine()) != null) {
-                result += line;
-            }
-        } catch (Exception e) {
-            // 异常记录
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (is != null) {
-                    is.close();
-                }
-                if (isr != null) {
-                    isr.close();
-                }
-            } catch (Exception e2) {
-                // 异常记录
-            }
-        }
-        return result;
     }
 
 }

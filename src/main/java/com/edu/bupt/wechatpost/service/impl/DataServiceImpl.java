@@ -1,6 +1,5 @@
 package com.edu.bupt.wechatpost.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.service.DataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -18,7 +21,7 @@ public class DataServiceImpl implements DataService {
 
     private final String serverIp = "https://smart.gantch.cn/"; // ip域名（端口号）
 //    private final String serverIp = "https://47.104.8.164:80/"; // 服务器ip域名（端口号）
-//    private final String serverIp = "http://localhost:80/"; // 本地（端口号）
+//    private final String serverIp = "http://656a37cc.ngrok.io/"; // 本地（端口号）
     private final String downloadInterface = "api/v1/wechatPost/download?";
     private final String imageBasePath = System.getProperty("user.dir").replace("\\","/")+"/image/";
 
@@ -85,5 +88,42 @@ public class DataServiceImpl implements DataService {
                 }
             }
         }
+    }
+
+    public String GET(String url) throws Exception{
+        String result = "";
+        BufferedReader in = null;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        try {
+            URL realUrl = new URL(url);
+            URLConnection conn = realUrl.openConnection();
+            conn.connect();
+            Map<String, List<String>> map = conn.getHeaderFields();
+            is = conn.getInputStream();
+            isr = new InputStreamReader(is);
+            in = new BufferedReader(isr);
+            String line;
+            while ((line = in.readLine()) != null) {
+                result += line;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+                if (isr != null) {
+                    isr.close();
+                }
+            } catch (Exception e2) {
+                // 异常记录
+            }
+        }
+        return result;
     }
 }
