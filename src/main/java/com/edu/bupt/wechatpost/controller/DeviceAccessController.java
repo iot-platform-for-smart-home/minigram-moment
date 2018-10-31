@@ -42,6 +42,25 @@ public class DeviceAccessController {
         }
     }
 
+    @RequestMapping(value = "/unassign/{customerId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public Integer unassignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_name") String gateway_name)throws IOException{
+        System.out.println("\n解绑网关设备...");
+        Request request = new Request.Builder()
+                .delete()
+                .url(BASEURL + "unassign/"+customerId+"?gateway_name="+gateway_name)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result+"\n");
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     @RequestMapping(value = "/device", method = RequestMethod.POST)
     @ResponseBody
     public String createDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message) throws Exception{
@@ -102,7 +121,6 @@ public class DeviceAccessController {
                 .url(BASEURL + url)
                 .build();
         Response response = client.newCall(request).execute();
-        Result res = new Result();
         String result = new String();
         if(response.isSuccessful()){
             result = response.body().string();
@@ -116,7 +134,7 @@ public class DeviceAccessController {
     public String getCustomerdevices(@PathVariable("tenantId")Integer tenantId,
                                          @PathVariable("customerId") Integer Customer, Integer limit,
                                          @RequestParam(value = "textSearch", required = false)String textSearch,
-                                         @RequestParam(value = "idOffset", required = false)String idOffset,
+                                          @RequestParam(value = "idOffset", required = false)String idOffset,
                                          @RequestParam(value = "textOffset",required = false)String textOffset)
         throws Exception{
         String url = "customerdevices/" + tenantId + "/" + Customer + "?limit=" + limit;
@@ -154,7 +172,6 @@ public class DeviceAccessController {
                 .url(BASEURL + "allattributes/" + deviceId)
                 .build();
         Response response = client.newCall(request).execute();
-        Result res = new Result();
         String result = new String();
         if(response.isSuccessful()){
             result = response.body().string();
@@ -165,8 +182,10 @@ public class DeviceAccessController {
 
     @RequestMapping(value = "/data/alldata/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getAllData(@PathVariable("deviceId") String deviceId, String key, String startTs, String endTs, Integer limit) throws  Exception{
-        String url = "data/alldata/" + deviceId + "?key=" + key + "&startTs=" + startTs + "&endTs=" + endTs + "&limit=" + limit;
+    public String getAllData(@PathVariable("deviceId") String deviceId, String key, String startTs,
+                             String endTs, Integer limit, Integer interval, String aggregation) throws  Exception{
+        String url = "data/alldata/" + deviceId + "?key=" + key + "&startTs=" + startTs + "&endTs="
+                + endTs + "&limit=" + limit + "&interval=" + interval + "&aggregation=" + aggregation;
         Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + url)
@@ -351,40 +370,5 @@ public class DeviceAccessController {
         return result;
     }
 
-//    @RequestMapping(value = "/websocket", method = {RequestMethod.POST, RequestMethod.GET})
-//    @ResponseBody
-//    public WebSocket websocket()throws Exception{
-//        WebSocket webSocket = new WebSocket() {
-//            @Override
-//            public okhttp3.Request request() {
-//                return new okhttp3.Request.Builder().build();
-//            }
-//
-//            @Override
-//            public long queueSize() {
-//                return 0;
-//            }
-//
-//            @Override
-//            public boolean send(String s) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean send(ByteString byteString) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean close(int i, String s) {
-//                return false;
-//            }
-//
-//            @Override
-//            public void cancel() {
-//
-//            }
-//        };
-//        return webSocket;
-//    }
+
 }
