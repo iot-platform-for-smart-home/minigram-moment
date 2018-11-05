@@ -53,6 +53,23 @@ public class SceneController {
         return result;
     }
 
+    @RequestMapping(value = "/getSceneByGateway/{gateway_name}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getSceneByGateway(@PathVariable("gateway_name") String gateway_name)throws IOException{
+        System.out.println("\n通过网关名获取场景============");
+        Request request = new Request.Builder()
+                .url(BASEURL + "getSceneByGateway/" + gateway_name)
+                .get()
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result);
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/deleteScene/{scene_id}", method = RequestMethod.DELETE)
     @ResponseBody
     public String deleteScene(@PathVariable("scene_id")Integer scene_id)throws IOException{
