@@ -42,12 +42,12 @@ public class DeviceAccessController {
         }
     }
 
-    @RequestMapping(value = "/unassign/{customerId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/unassign/{customerId}", method = RequestMethod.GET)
     @ResponseBody
     public Integer unassignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_name") String gateway_name)throws IOException{
         System.out.println("\n解绑网关设备...");
         Request request = new Request.Builder()
-                .delete()
+                .get()
                 .url(BASEURL + "unassign/"+customerId+"?gateway_name="+gateway_name)
                 .build();
         Response response = client.newCall(request).execute();
@@ -366,6 +366,36 @@ public class DeviceAccessController {
             Result resultJson = new Result();
             resultJson.setStatus("success");
             return resultJson.toString();
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/parentdevices/{parentdeviceId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getDevicesByParentDeviceId(@PathVariable("parentdeviceId") String parentdeviceId, Integer limit,
+                                    @RequestParam(value = "textSearch", required = false)String textSearch,
+                                    @RequestParam(value = "idOffset", required = false)String idOffset,
+                                    @RequestParam(value = "textOffset",required = false)String textOffset)
+            throws Exception{
+        String url = "parentdevices/" + parentdeviceId + "?limit=" + limit;
+        if (textSearch != null){
+            url = url + "&textSearch=" + textSearch;
+        }
+        if (idOffset != null){
+            url = url + "&idOffset=" + idOffset;
+        }
+        if (textOffset != null){
+            url = url + "&textOffset=" + textOffset;
+        }
+        Request request = new Request.Builder()
+                .url(BASEURL + url)
+                .get()
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result);
         }
         return result;
     }
