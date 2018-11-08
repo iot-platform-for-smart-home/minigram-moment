@@ -56,13 +56,40 @@ public class ZigBeeController {
                 .url(urlPrefix + "device/deleteDevice/" + uuid)
                 .delete()
                 .build();
-        Response response = client.newCall(request).execute();
-        if(response.isSuccessful()){
-            logger.info("Succeed in deleting records in Mysql!");
-            return "success";
-        } else {
-            logger.warn("Error occurs in deleting records in Mysql!");
-            return "fail";
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                logger.info("Succeed in deleting records in Mysql!");
+                return "success";
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
+        logger.warn("Error occurs in deleting records in Mysql!");
+        return "fail";
+    }
+
+    @RequestMapping(value = "/device/addNewDevice/{gateway_name}",method = RequestMethod.GET)
+    @ResponseBody
+    public String addNewDevice(@PathVariable("gateway_name")String gateway_name)throws Exception{
+        logger.info("permit devices join gateway...");
+        String urlPrefix = URLPREDIX;
+        urlPrefix = urlPrefix.replace("ip","47.104.8.164")
+                .replace("port","8800");
+        Request request = new Request.Builder()
+                .url(urlPrefix + "device/addNewDevice/" + gateway_name)
+                .get()
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                logger.info("Call permitDeviceJoinGateway success!");
+                return "success";
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        logger.warn("Call permitDeviceJoinGateway fail!");
+        return "fail";
     }
 }
