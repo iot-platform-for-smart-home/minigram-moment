@@ -6,8 +6,8 @@ server:
 #        keyStoreType: PKCS12
 #        keyAlias: 1
 
-wechat:
-    server: https://47.104.8.164:80/
+#wechat:
+#    server: https://47.104.8.164:80/
 
 
 spring:

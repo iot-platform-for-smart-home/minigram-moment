@@ -29,10 +29,7 @@ public class DataServiceImpl implements DataService {
     public String uploadImage(MultipartFile image) throws IOException {
         logger.info("正在上传图片...");
         String imageName = "";
-//        JSONObject imageJson = new JSONObject();
         if(image != null){
-//            System.out.println(image.length);
-//            for(int i = 0; i < image.length; i++ ) {
             imageName = image.getOriginalFilename();
             //  图片类型
             String suffixName = imageName.substring(imageName.lastIndexOf("."));
@@ -52,7 +49,6 @@ public class DataServiceImpl implements DataService {
                 logger.info("上传图片成功，保存路径为: " + imageUrl);
                 logger.info( "访问路径为: " + imagePath);
                 return imagePath;
-//                imageJson.put("image"+i, imagePath);
             } catch (IOException e) {
                 logger.info("上传文件失败\n" + e.getMessage());
             }
@@ -121,7 +117,7 @@ public class DataServiceImpl implements DataService {
                     isr.close();
                 }
             } catch (Exception e2) {
-                // 异常记录
+                e2.printStackTrace(); // 异常记录
             }
         }
         return result;

@@ -1,6 +1,9 @@
 package com.edu.bupt.wechatpost.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.service.DeviceTokenRelationService;
+import com.google.gson.JsonObject;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -80,16 +83,92 @@ public class ZigBeeController {
                 .url(urlPrefix + "device/addNewDevice/" + gateway_name)
                 .get()
                 .build();
+        String result = "fail";
         try {
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                logger.info("Call permitDeviceJoinGateway success!");
-                return "success";
+                result = response.body().string();
             }
         }catch(Exception e){
+            logger.warn("Call permitDeviceJoinGateway thor!");
             e.printStackTrace();
         }
-        logger.warn("Call permitDeviceJoinGateway fail!");
-        return "fail";
+        return result;
+    }
+
+    @RequestMapping(value = "/device/getSceneSelectorBind/{sceneId}",method = RequestMethod.GET)
+    @ResponseBody
+    public String getSceneSelectorBind(@PathVariable("sceneId")String sceneId)throws Exception{
+        logger.info("get scene selector bind...");
+        String urlPrefix = URLPREDIX;
+        urlPrefix = urlPrefix.replace("ip","47.104.8.164")
+                .replace("port","8800");
+        Request request = new Request.Builder()
+                .url(urlPrefix + "device/getSceneSelectorBind/" + sceneId)
+                .get()
+                .build();
+        String result = "fail";
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+            }
+        }catch(Exception e){
+            logger.warn("Error!");
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/device/deleteSceneSelectorBind", method = RequestMethod.DELETE)
+    @ResponseBody
+    public String deleteSceneSelectorBind(@RequestBody String message)throws Exception{
+        logger.info("delete scene selector bind...");
+        String urlPrefix = URLPREDIX;
+        final MediaType JSON = MediaType.parse("application/json,text/plain; charset=utf-8");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, new JSONObject().parseObject(message).toJSONString());
+        urlPrefix = urlPrefix.replace("ip","47.104.8.164")
+                .replace("port","8800");
+        Request request = new Request.Builder()
+                .url(urlPrefix + "device/deleteSceneSelectorBind/")
+                .delete(body)
+                .build();
+        String result = "fail";
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+            }
+        }catch(Exception e){
+            logger.warn("Error!");
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/device/sceneSelectorBindDevice", method = RequestMethod.POST)
+    @ResponseBody
+    public String SceneSelectorBindDevice(@RequestBody String message)throws Exception{
+        logger.info("scene selector bind...");
+        String urlPrefix = URLPREDIX;
+        final MediaType JSON = MediaType.parse("application/json,text/plain;charset=utf-8");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, new JSONObject().parseObject(message).toJSONString());
+        urlPrefix = urlPrefix.replace("ip","47.104.8.164")
+                .replace("port","8800");
+        Request request = new Request.Builder()
+                .url(urlPrefix + "device/sceneSelectorBindDevice/")
+                .post(body)
+                .build();
+        String result = "fail";
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+            }
+        }catch(Exception e){
+            logger.warn("Error!");
+            e.printStackTrace();
+        }
+        return result;
     }
 }
