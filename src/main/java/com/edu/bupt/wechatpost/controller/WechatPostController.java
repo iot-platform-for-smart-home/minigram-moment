@@ -209,13 +209,9 @@ public class WechatPostController {
     @RequestMapping(value = "/getOpenId", method = RequestMethod.POST)
     @ResponseBody
     public String getOpenId(@RequestBody JSONObject message)throws Exception{
-        String appid = message.getString("appid");
-        String secret = message.getString("secret");
         final String JSCODE = message.getString("JSCODE");
-        if (appid.equals("") || secret.equals("")){
-            appid = "wx5ef2de2111a9a82a";
-            secret = "e3658cc08939eb93cf45238c536ec1e6";
-        }
+        final String appid = "wx9e12afc5dec75b6f";
+        final String secret = "d0d7b3d2ab48530710a4828003dd1c05";
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type='authorization_code'"
                 .replace("APPID",appid)
                 .replace("SECRET",secret)
