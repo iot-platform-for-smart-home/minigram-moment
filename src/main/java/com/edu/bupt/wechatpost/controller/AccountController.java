@@ -68,6 +68,24 @@ public class AccountController {
         return result;
     }
 
+    @RequestMapping(value = "/unBindedGate", method = RequestMethod.POST)
+    @ResponseBody
+    public String unBindedGate(@RequestBody JSONObject message) throws Exception{
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, message.toJSONString());
+        Request request = new Request.Builder()
+                .url(BASEURL + "unBindedGate")
+                .post(body)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = new String();
+        if(response.isSuccessful()){
+            result = response.body().string();
+            System.out.println(result);
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/unBindedALLGate", method = RequestMethod.POST)
     @ResponseBody
     public String unBindedALLGate(@RequestBody JSONObject message) throws Exception{
