@@ -128,7 +128,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/rules", method = RequestMethod.GET)
     @ResponseBody
-    public String getRuleById(){
+    public String getRules(){
         Request request = new Request.Builder()
                 .url(BASEURL + "rules")
                 .get()
@@ -170,11 +170,11 @@ public class SmartrulerController {
         }
     }
 
-    @RequestMapping(value = "/ruleByCustomer/{customerId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/ruleByGateway/{gatewayId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getRulesByCustomerId(@PathVariable("customerId")Integer customerId){
+    public String getRuleByGatewayId(@PathVariable("gatewayId")String gatewayId){
         Request request = new Request.Builder()
-                .url(BASEURL + "ruleByCustomer/"+ customerId)
+                .url(BASEURL + "ruleByGateway/" + gatewayId)
                 .get()
                 .build();
         String result = new String();
@@ -192,12 +192,12 @@ public class SmartrulerController {
         }
     }
 
-    @RequestMapping(value = "/ruleByCustomer/{customerId}/{textSearch}", method = RequestMethod.GET)
+    @RequestMapping(value = "/ruleByGateway/{gatewayId}/{textSearch}", method = RequestMethod.GET)
     @ResponseBody
-    public String getRulesByTenantIdAndText(@PathVariable("customerId")Integer customerId,
+    public String getRulesByGatewayIdAndText(@PathVariable("gatewayId")Integer gatewayId,
                                             @PathVariable("textSearch")String textSearch){
         Request request = new Request.Builder()
-                .url(BASEURL + "ruleByCustomer/"+ customerId + "/" + textSearch)
+                .url(BASEURL + "ruleByGateway/"+ gatewayId + "/" + textSearch)
                 .get()
                 .build();
         String result = new String();
@@ -215,11 +215,11 @@ public class SmartrulerController {
         }
     }
 
-    @RequestMapping(value = "/alarmRule/suspend/{customerId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/alarmRule/suspend/{gatewayId}", method = RequestMethod.GET)
     @ResponseBody
-    public String suspendAlarmRule(@PathVariable("customerId")Integer customerId){
+    public String suspendAlarmRule(@PathVariable("gatewayId")Integer gatewayId){
         Request request = new Request.Builder()
-                .url(BASEURL + "alarmRule/suspend/" + customerId )
+                .url(BASEURL + "alarmRule/suspend/" + gatewayId )
                 .get()
                 .build();
         String result = new String();
@@ -236,4 +236,49 @@ public class SmartrulerController {
             return result;
         }
     }
+
+    @RequestMapping(value = "/alarmRule/activate/{gatewayId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String activateAlarmRule(@PathVariable("gatewayId")Integer gatewayId){
+        Request request = new Request.Builder()
+                .url(BASEURL + "alarmRule/activate/" + gatewayId )
+                .get()
+                .build();
+        String result = new String();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            result = "error";
+        } finally {
+            return result;
+        }
+    }
+
+    @RequestMapping(value = "/alarmActiveRule/{gatewayId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getAlarmActiveRule(@PathVariable("gatewayId")Integer gatewayId){
+        Request request = new Request.Builder()
+                .url(BASEURL + "alarmActiveRule/" + gatewayId )
+                .get()
+                .build();
+        String result = new String();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            result = "error";
+        } finally {
+            return result;
+        }
+    }
+
 }
