@@ -10,5 +10,4 @@ import java.io.IOException;
 public interface DataService {
     String uploadImage(MultipartFile images) throws IOException;
     void downloadImage(String imageUrl, HttpServletRequest request, HttpServletResponse response)throws IOException;
-    String GET(String url) throws Exception;
 }
