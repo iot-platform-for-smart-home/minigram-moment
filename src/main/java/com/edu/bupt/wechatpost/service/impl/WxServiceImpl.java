@@ -1,10 +1,12 @@
 package com.edu.bupt.wechatpost.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.edu.bupt.wechatpost.dao.MP2OAMapper;
-import com.edu.bupt.wechatpost.model.MP2OA;
+import com.edu.bupt.wechatpost.dao.AuthMapper;
+import com.edu.bupt.wechatpost.model.Auth;
 import com.edu.bupt.wechatpost.service.WxService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,9 +17,10 @@ import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class WxServiceImpl implements WxService {
     @Autowired
-    MP2OAMapper mp2oaMapper;
+    private AuthMapper authMapper;
 
     @Override
     public String getOpenId(JSONObject message) {
@@ -33,14 +36,9 @@ public class WxServiceImpl implements WxService {
             System.out.println(url); // 打印发起请求的url
             System.out.println(returnvalue); // 打印调用GET方法返回值
             JSONObject convertvalue = (JSONObject) JSONObject.parse(returnvalue);   // 将得到的字符串转换为json
-            String openid = (String) convertvalue.get("openid");
-            String unionid = (String) convertvalue.get("unionid");
-            if (!"".equals(unionid)) {
-                MP2OA user = new MP2OA(unionid, openid, null);
-                mp2oaMapper.insertSelective(user);
-            }
             return convertvalue.toJSONString();
         } catch (IOException e){
+            System.out.println("========== ERROR:获取openid失败");
             e.printStackTrace();
             return "error!";
         }
@@ -51,18 +49,33 @@ public class WxServiceImpl implements WxService {
         String unionid = message.getString("unionid");
         String openid = message.getString("openid");
         if(! "".equals(unionid)){
-            MP2OA user = mp2oaMapper.selectByUnionid(unionid);
-            if (user != null) {
+            Auth user = authMapper.selectByUnionid(unionid);
+            if (user != null) { // 用户存在
+                if(user.getMini_openid() == null){
+                    authMapper.updateMiniOpenid(unionid, openid);
+                }
                 if (user.getOa_openid() != null){  // 用户已关注微信公众号
-                    return 2; // followed
-                } else{
-                    if (user.getMini_openid() == null){
-                        mp2oaMapper.updateMiniOpenid(unionid, openid);  // 小程序openid为空，修改记录
+                    return 1; // followed
+                } else {
+                    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+                    okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
+                    try {
+                        okhttp3.Response res = client.newCall(request).execute();
+                        if (res.isSuccessful()){
+                            if(res.body().string() != "-1"){
+                                if(null != authMapper.selectOAByUnionid(unionid))
+                                    return 1;
+                            }
+                        }
+                    } catch (IOException e){
+                        e.printStackTrace();
                     }
-                    return 1; // unregiste
+                    return 0; // unregiste
                 }
             } else {
-                mp2oaMapper.insertSelective(user); // 未发现该用户，插入新纪录
+                user.setUnionid(unionid);
+                user.setMini_openid(openid);
+                authMapper.insertSelective(user); // 未发现该用户，插入新纪录
                 return 0;  // empty
             }
         }
@@ -105,6 +118,87 @@ public class WxServiceImpl implements WxService {
             }
         }
         return result;
+    }
+
+    @Override
+    public void registe(String unionid, String oa_openid) {
+        Auth user = new Auth(unionid,null, oa_openid);
+        try {
+            authMapper.insertSelective(user);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void addUser(String unionid, String oa_openid){
+        // 如果数据库存在该用户则不插入
+        if(authMapper.selectByUnionid(unionid)!=null) return;
+        Auth user = new Auth(unionid, null, oa_openid);
+        authMapper.insertSelective(user);
+    }
+
+    public void get_and_insert_users(String access_token){
+        String GET_USERLIST_URL = String.format("https://api.weixin.qq.com/cgi-bin/user/get?access_token=%s&next_openid=",access_token);
+        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(GET_USERLIST_URL).get().build();
+        try {
+            okhttp3.Response res = client.newCall(request).execute();
+            if(res.isSuccessful()){
+                // 解析返回结果
+                String result = res.body().string();
+                JSONObject json = JSONObject.parseObject(result);
+                int total = json.getInteger("total");
+                int count = json.getInteger("count");
+                JSONObject data = json.getJSONObject("data");
+                JSONArray openids = data.getJSONArray("openid");
+                String next_openid = json.getString("next_openid");
+                // 如果(total - count)为0, 用户列表全部获取到
+                while(total >= 0) {
+                    total -= count;
+                    for (int i = 0; i < count; i++) {
+                        // 对每一个openid，通过查找用户信息API获得对应的unionid
+                        String openid = openids.getString(i);
+                        String GET_USERINFO_URL = String.format("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s", access_token, openid);
+                        request = new okhttp3.Request.Builder().url(GET_USERINFO_URL).get().build();
+                        try {
+                            res = client.newCall(request).execute();
+                            if (res.isSuccessful()) {
+                                String next_result = res.body().string();
+                                json = JSONObject.parseObject(next_result);
+                                String unionid = json.getString("unionid");
+                                // 插入新纪录
+                                addUser(unionid, openid);
+                            }
+                        } catch (IOException e) {
+                            System.out.println(String.format("========== ERROR:获取 %s 用户信息失败", openid));
+                            e.printStackTrace();
+
+                        }
+                    }
+                    if(total > 0){  // 用户列表不全,获取剩余用户
+                        String next_url = GET_USERLIST_URL + next_openid;
+                        request = new okhttp3.Request.Builder().url(next_url).get().build();
+                        try {
+                            res = client.newCall(request).execute();
+                            if (res.isSuccessful()){
+                                json = JSONObject.parseObject(res.body().string());
+                                count = json.getInteger("count");
+                                next_openid = json.getString("next_openid");
+                                data = json.getJSONObject("data");
+                                openids = data.getJSONArray("openid");
+                            }
+                        } catch(IOException e){
+                            System.out.println("========== ERROR:后续获取用户列表失败");
+                            e.printStackTrace();
+                            return;
+                        }
+                    }
+                }
+            }
+        } catch (IOException e){
+            System.out.println("========== ERROR:第一次获取用户列表失败");
+            e.printStackTrace();
+        }
     }
 
 }
