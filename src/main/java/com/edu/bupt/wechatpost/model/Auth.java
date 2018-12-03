@@ -1,11 +1,11 @@
 package com.edu.bupt.wechatpost.model;
 
-public class MP2OA {
+public class Auth {
     private String unionid;
     private String mini_openid;
     private String oa_openid;
 
-    public MP2OA(String unionid, String mini_openid, String oa_openid){
+    public Auth(String unionid, String mini_openid, String oa_openid){
         this.unionid = unionid;
         this.mini_openid = mini_openid;
         this.oa_openid = oa_openid;
@@ -13,7 +13,7 @@ public class MP2OA {
 
     @Override
     public String toString() {
-        return "MP2OA{" +
+        return "Auth{" +
                 "unionid='" + unionid + '\'' +
                 ", mini_openid='" + mini_openid + '\'' +
                 ", oa_openid='" + oa_openid + '\'' +

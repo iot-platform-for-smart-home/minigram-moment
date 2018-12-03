@@ -1,5 +1,6 @@
 package com.edu.bupt.wechatpost.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Comment;
 import com.edu.bupt.wechatpost.model.Post;
@@ -28,6 +29,9 @@ public class WechatPostController {
 
     @Autowired
     private DataService dataService;
+
+    @Autowired
+    private WxService wxService;
 
     private final static Logger logger = LoggerFactory.getLogger(WechatPostController.class);
 
@@ -211,14 +215,31 @@ public class WechatPostController {
     @RequestMapping(value = "/getOpenId", method = RequestMethod.POST)
     @ResponseBody
     public String getOpenId(@RequestBody JSONObject message){
-        WxService wxService = new WxServiceImpl();
         return wxService.getOpenId(message);
     }
 
     @RequestMapping(value = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public int judgeFollow(@RequestBody JSONObject message){
-        WxService wxService = new WxServiceImpl();
         return wxService.follow(message);
     }
+
+    @RequestMapping(value = "/registe", method = RequestMethod.POST)
+    @ResponseBody
+    public void registe(@RequestParam(value = "unionid",required = false)String unionid,
+                        @RequestParam(value = "openid", required = false)String oa_openid){
+        if(!"".equals(unionid)){
+            logger.info("receive message from wechat official account, unionid="+unionid+"\topenid="+oa_openid);
+            wxService.registe(unionid, oa_openid);
+        }
+    }
+
+      /* 将该接口放在了wechatPlugin里  */
+//    @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET)
+//    @ResponseBody
+//    public void getAllUsers(String access_token){
+//        wxService.get_and_insert_users(access_token);
+//    }
+
+
 }
