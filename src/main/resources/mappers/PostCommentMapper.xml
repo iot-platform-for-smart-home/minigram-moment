@@ -119,7 +119,7 @@
     </update>
 
     <!--插入评论-->
-    <insert id="insertComment" parameterType="com.edu.bupt.wechatpost.model.Comment">
+    <insert id="insertComment" parameterType="com.edu.bupt.wechatpost.model.Comment" keyProperty="id" useGeneratedKeys="true">
     insert into comment (id, p_id, nickname, c_content)
     values (#{cId,jdbcType=INTEGER}, #{pId,jdbcType=INTEGER},
              #{nickName,jdbcType=VARCHAR},#{cContent,jdbcType=VARCHAR})
@@ -130,4 +130,12 @@
     delete from comment
     where id = #{cId,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectCommentById" parameterType="java.lang.Integer" resultType="Comment">
+        SELECT * FROM comment where id = #{id,jdbcType =INTEGER}
+    </select>
+
+    <select id="selectPostById" parameterType="java.lang.Integer" resultType="Post">
+        SELECT * FROM post WHERE id = #{id, jdbcType=INTEGER}
+    </select>
 </mapper>

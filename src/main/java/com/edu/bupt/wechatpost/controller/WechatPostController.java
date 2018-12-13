@@ -3,11 +3,11 @@ package com.edu.bupt.wechatpost.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.Comment;
+import com.edu.bupt.wechatpost.model.LikeRelation;
 import com.edu.bupt.wechatpost.model.Post;
 import com.edu.bupt.wechatpost.service.DataService;
 import com.edu.bupt.wechatpost.service.PostCommentService;
 import com.edu.bupt.wechatpost.service.WxService;
-import com.edu.bupt.wechatpost.service.impl.WxServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +87,7 @@ public class WechatPostController {
         }
     }
 
+
     @RequestMapping(value = "/addPostJson", method = RequestMethod.POST)
     @ResponseBody
     public Integer addPost(@RequestBody JSONObject message){
@@ -115,6 +116,7 @@ public class WechatPostController {
         return 0;
     }
 
+
     @RequestMapping(value = "/addPost", method = RequestMethod.POST)
     @ResponseBody
         public Integer addPost(@RequestParam(value = "image", required = false) MultipartFile image,
@@ -123,7 +125,7 @@ public class WechatPostController {
                                @RequestParam(value = "avatar") String avatar,
                                @RequestParam(value = "content") String content,
                                @RequestParam(value = "location") String location
-                               ) throws Exception {
+                               ){
         logger.info("发布消息...");
         java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
         String s = format.format(new Date());
@@ -146,6 +148,7 @@ public class WechatPostController {
         return 0;
     }
 
+
     @RequestMapping(value = "/uploadImage", method = RequestMethod.POST)
     @ResponseBody
     public String uploadImage(@RequestParam("image") MultipartFile image){
@@ -159,6 +162,7 @@ public class WechatPostController {
         }
         return result;
     }
+
 
     @RequestMapping(value = "/download",method=RequestMethod.GET)
     @ResponseBody
@@ -185,7 +189,32 @@ public class WechatPostController {
     public Integer updateFavoriteNum(@RequestBody JSONObject message){
         Integer pId = message.getInteger("pId");
         Integer num = message.getInteger("num");
-        return postCommentService.favorite(pId, num);
+        String nickName = message.getString("nickName");
+        String avator = message.getString("avator");
+        String openid = message.getString("openId");  /// 主动者
+        if(wxService.isLike(openid,pId)) { // 如果已经点赞了
+            wxService.unfavorite(openid, pId);  //  取消点赞
+            return 0;
+        }else{  // 如果没有点赞
+            String touser = postCommentService.findPost(pId).getOpenId();  // 被动者openid
+            if (touser != null) {
+                wxService.favorite(pId, 1);  // 点赞
+                try {  // 添加对应关系
+                    Integer l_id = wxService.addLikeRelation(new LikeRelation(pId, nickName));
+                    try{  // 添加提示
+                        postCommentService.addTip(touser, avator, 1, l_id);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        postCommentService.deleteTip(touser, l_id);
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                    wxService.unfavorite(touser, pId);
+                }
+                return 1;
+            }
+        }
+        return -1;
     }
 
 
@@ -195,14 +224,30 @@ public class WechatPostController {
         Integer pId = message.getInteger("pId");
         String nickName = message.getString("nickName");
         String cContent = message.getString("cContent");
+        String touser = "";
+        String avator = message.getString("avator");
         try{
             Comment comment = new Comment(pId, nickName, cContent);
-            postCommentService.addComment(comment);
-            return 1;
+            Post post = postCommentService.findPost(pId);
+            if(null != post){
+                touser = post.getOpenId();
+            }else{
+                return -1; // 评论对应的消息为空
+            }
+            int id = postCommentService.addComment (comment);
+            try {
+                if (id >= 0) {
+                    postCommentService.addTip(touser, avator, 2, id);
+                    return 1; // 评论成功并且添加提示
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+                postCommentService.deleteComment(id);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
         }
+        return 0;  // 评论失败
     }
 
     @RequestMapping(value = "/deleteComment", method = RequestMethod.POST)
@@ -212,17 +257,20 @@ public class WechatPostController {
         return postCommentService.deleteComment(cId);
     }
 
+
     @RequestMapping(value = "/getOpenId", method = RequestMethod.POST)
     @ResponseBody
     public String getOpenId(@RequestBody JSONObject message){
         return wxService.getOpenId(message);
     }
 
+
     @RequestMapping(value = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public int judgeFollow(@RequestBody JSONObject message){
         return wxService.follow(message);
     }
+
 
     @RequestMapping(value = "/registe", method = RequestMethod.POST)
     @ResponseBody
@@ -242,4 +290,23 @@ public class WechatPostController {
 //    }
 
 
+    @RequestMapping(value = "/getAllTips/{openid}", method = RequestMethod.GET)
+    @ResponseBody
+    public JSONArray getAllTips(@PathVariable("openid")String openid){
+        return wxService.getTips(openid);
+    }
+
+
+    @RequestMapping(value = "/getUnreadTips/{openid}", method = RequestMethod.GET)
+    @ResponseBody
+    public JSONArray getUnreadTips(@PathVariable("openid")String openid){
+        return wxService.getUnreadTips(openid);
+    }
+
+
+    @RequestMapping(value = "/readTips/{openid}", method = RequestMethod.GET)
+    @ResponseBody
+    public void readTips(@PathVariable("openid")String openid){
+        wxService.readTips(openid);
+    }
 }

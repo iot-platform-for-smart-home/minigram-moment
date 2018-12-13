@@ -7,6 +7,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/v1/smartruler")
@@ -40,7 +42,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/remove/{ruleId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteRule(@PathVariable("ruleId")String ruleId){
+    public String deleteRule(@PathVariable("ruleId")Integer ruleId){
         Request request = new Request.Builder()
                 .url(BASEURL + "remove/" + ruleId)
                 .delete()
@@ -62,7 +64,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/rule/{ruleId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getRuleById(@PathVariable("ruleId")String ruleId){
+    public String getRuleById(@PathVariable("ruleId")Integer ruleId){
         Request request = new Request.Builder()
                 .url(BASEURL + "rule/" + ruleId)
                 .get()
@@ -84,10 +86,12 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/{ruleId}/activate", method = RequestMethod.POST)
     @ResponseBody
-    public String activateRuleById(@PathVariable("ruleId")String ruleId){
+    public String activateRuleById(@PathVariable("ruleId")Integer ruleId){
+        okhttp3.MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, "");
         Request request = new Request.Builder()
                 .url(BASEURL + ruleId + "/activate")
-                .post(null)
+                .post(body)
                 .build();
         String result = new String();
         try {
@@ -106,10 +110,12 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/{ruleId}/suspend", method = RequestMethod.POST)
     @ResponseBody
-    public String suspendRuleById(@PathVariable("ruleId")String ruleId){
+    public String suspendRuleById(@PathVariable("ruleId")Integer ruleId){
+        okhttp3.MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, "");
         Request request = new Request.Builder()
                 .url(BASEURL + ruleId + "/suspend")
-                .post(null)
+                .post(body)
                 .build();
         String result = new String();
         try {
@@ -139,6 +145,7 @@ public class SmartrulerController {
             if (response.isSuccessful()) {
                 result = response.body().string();
                 System.out.println(result);
+                return result;
             }
         } catch(Exception e){
             e.printStackTrace();
@@ -194,7 +201,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/ruleByGateway/{gatewayId}/{textSearch}", method = RequestMethod.GET)
     @ResponseBody
-    public String getRulesByGatewayIdAndText(@PathVariable("gatewayId")Integer gatewayId,
+    public String getRulesByGatewayIdAndText(@PathVariable("gatewayId")String gatewayId,
                                             @PathVariable("textSearch")String textSearch){
         Request request = new Request.Builder()
                 .url(BASEURL + "ruleByGateway/"+ gatewayId + "/" + textSearch)
@@ -217,7 +224,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/alarmRule/suspend/{gatewayId}", method = RequestMethod.GET)
     @ResponseBody
-    public String suspendAlarmRule(@PathVariable("gatewayId")Integer gatewayId){
+    public String suspendAlarmRule(@PathVariable("gatewayId")String gatewayId){
         Request request = new Request.Builder()
                 .url(BASEURL + "alarmRule/suspend/" + gatewayId )
                 .get()
@@ -239,7 +246,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/alarmRule/activate/{gatewayId}", method = RequestMethod.GET)
     @ResponseBody
-    public String activateAlarmRule(@PathVariable("gatewayId")Integer gatewayId){
+    public String activateAlarmRule(@PathVariable("gatewayId")String gatewayId){
         Request request = new Request.Builder()
                 .url(BASEURL + "alarmRule/activate/" + gatewayId )
                 .get()
@@ -261,7 +268,7 @@ public class SmartrulerController {
 
     @RequestMapping(value = "/alarmActiveRule/{gatewayId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getAlarmActiveRule(@PathVariable("gatewayId")Integer gatewayId){
+    public String getAlarmActiveRule(@PathVariable("gatewayId")String gatewayId){
         Request request = new Request.Builder()
                 .url(BASEURL + "alarmActiveRule/" + gatewayId )
                 .get()

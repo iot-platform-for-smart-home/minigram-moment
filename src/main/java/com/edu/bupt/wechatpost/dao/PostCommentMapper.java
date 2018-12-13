@@ -14,4 +14,6 @@ public interface PostCommentMapper {
     Integer updateFavoriteNum(@Param("pId")Integer pId, @Param("num")Integer num);
     Integer insertComment(Comment comment);
     Integer deleteCommentByCommentId(@Param("cId") Integer cId);
+    Comment selectCommentById(@Param("id")Integer id);
+    Post selectPostById(@Param("id")Integer id);
 }

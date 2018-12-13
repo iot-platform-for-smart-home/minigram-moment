@@ -3,7 +3,10 @@ package com.edu.bupt.wechatpost.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.dao.AuthMapper;
-import com.edu.bupt.wechatpost.model.Auth;
+import com.edu.bupt.wechatpost.dao.LikeRelationMapper;
+import com.edu.bupt.wechatpost.dao.MomentTipMapper;
+import com.edu.bupt.wechatpost.dao.PostCommentMapper;
+import com.edu.bupt.wechatpost.model.*;
 import com.edu.bupt.wechatpost.service.WxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,15 @@ public class WxServiceImpl implements WxService {
     @Autowired
     private AuthMapper authMapper;
 
-    @Override
+    @Autowired
+    private MomentTipMapper tipMapper;
+
+    @Autowired
+    private LikeRelationMapper likeMapper;
+
+    @Autowired
+    private PostCommentMapper postCommentMapper;
+
     public String getOpenId(JSONObject message) {
         final String JSCODE = message.getString("JSCODE");
         final String appid = "wx9e12afc5dec75b6f";
@@ -36,6 +47,15 @@ public class WxServiceImpl implements WxService {
             System.out.println(url); // 打印发起请求的url
             System.out.println(returnvalue); // 打印调用GET方法返回值
             JSONObject convertvalue = (JSONObject) JSONObject.parse(returnvalue);   // 将得到的字符串转换为json
+            String unionid = convertvalue.getString("unionid");
+            String openid = convertvalue.getString("openid");
+            if( null != unionid){
+                if(null == authMapper.selectByUnionid(unionid)){
+                    authMapper.insertSelective(new Auth(unionid, openid, null));
+                }
+            }
+
+
             return convertvalue.toJSONString();
         } catch (IOException e){
             System.out.println("========== ERROR:获取openid失败");
@@ -44,8 +64,8 @@ public class WxServiceImpl implements WxService {
         }
     }
 
-    @Override
     public int follow(JSONObject message) {
+        System.out.println("whether user followed officecial account");
         String unionid = message.getString("unionid");
         String openid = message.getString("openid");
         if(! "".equals(unionid)){
@@ -82,7 +102,6 @@ public class WxServiceImpl implements WxService {
         return -1; // unionid is null  unionid为空，检查配置
     }
 
-    @Override
     public String GET(String url) throws IOException {
         String result = "";
         BufferedReader in = null;
@@ -120,7 +139,6 @@ public class WxServiceImpl implements WxService {
         return result;
     }
 
-    @Override
     public void registe(String unionid, String oa_openid) {
         Auth user = new Auth(unionid,null, oa_openid);
         try {
@@ -200,5 +218,119 @@ public class WxServiceImpl implements WxService {
             e.printStackTrace();
         }
     }
+
+    public Boolean isLike(String openid, Integer p_id) {
+        return (null != likeMapper.selectByOpenidAndPid(openid, p_id));
+    }
+
+    public Integer addLikeRelation(LikeRelation relation){
+        likeMapper.insert(relation);
+        Integer id = relation.getId();
+        return id;
+    }
+
+    public Integer favorite(Integer pId, Integer num) {
+        return postCommentMapper.updateFavoriteNum(pId, num);
+    }
+
+    public void unfavorite(String openid, Integer p_id) {
+        likeMapper.delete(openid, p_id);
+        postCommentMapper.updateFavoriteNum(p_id, -1);
+    }
+
+    public JSONArray getTips(String openid) {
+        List<MomentTip> tips = tipMapper.selectByOpenid(openid);
+        if(null == tips) return null;
+        JSONArray jsonArray = new JSONArray();
+        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+        for (MomentTip tip : tips){
+            JSONObject json = new JSONObject();
+            json.put("id", tip.getId());
+            json.put("createTime", format.format(tip.getCreateTime()));
+            json.put("avator", tip.getAvator());
+            json.put("isread", tip.getIsread());
+//            json.put("type",tip.getAction_type());
+            Integer id = tip.getAction_id();
+            switch (tip.getAction_type()){
+                case 1: // LIKE
+                     LikeRelation relation = likeMapper.selectById(id);
+                     if (null != relation){
+                         json.put("nickname", relation.getNickname());
+                         Post post = postCommentMapper.selectPostById(relation.getP_id());
+                         if (null != post) {
+                             json.put("p_content", post.getpContent());
+                             json.put("image", post.getImage());
+                         }
+                     }
+                    break;
+                case 2:
+                    Comment comment = postCommentMapper.selectCommentById(id);
+                    if(null != comment) {
+                        json.put("c_content", comment.getcContent());
+                        json.put("nickname", comment.getNickName());
+                        Post post = postCommentMapper.selectPostById(comment.getpId());
+                        if (null != post) {
+                            json.put("p_content", post.getpContent());
+                            json.put("image", post.getImage());
+                        }
+                    }
+                    break;
+                default:
+                    System.out.println("unknown record!");
+                    break;
+            }
+            jsonArray.add(json);
+        }
+        return jsonArray;
+    }
+
+    public JSONArray getUnreadTips(String openid){
+        List<MomentTip> tips = tipMapper.selectUnreadByOpenid(openid);
+        if(null == tips) return null;
+        JSONArray jsonArray = new JSONArray();
+        java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+        for (MomentTip tip : tips){
+            JSONObject json = new JSONObject();
+            json.put("id", tip.getId());
+            json.put("createTime", format.format(tip.getCreateTime()));
+            json.put("avator", tip.getAvator());
+            Integer id = tip.getAction_id();
+            switch (tip.getAction_type()){
+                case 1: // Like
+                    LikeRelation relation = likeMapper.selectById(id);
+                    if (null != relation){
+                        json.put("nickname", relation.getNickname());
+                        Post post = postCommentMapper.selectPostById(relation.getP_id());
+                        if (null != post) {
+                            json.put("p_content", post.getpContent());
+                            json.put("image", post.getImage());
+                        }
+                    }
+                    break;
+                case 2:  // Comment
+                    Comment comment = postCommentMapper.selectCommentById(id);
+                    if(null != comment) {
+                        json.put("c_content", comment.getcContent());
+                        json.put("nickname", comment.getNickName());
+                        Post post = postCommentMapper.selectPostById(comment.getpId());
+                        if (null != post) {
+                            json.put("p_content", post.getpContent());
+                            json.put("image", post.getImage());
+                        }
+                    }
+                    break;
+                default:
+                    System.out.println("unknown record!");
+                    break;
+            }
+            jsonArray.add(json);
+        }
+        return jsonArray;
+    }
+
+    public void readTips(String openid) {
+        tipMapper.updateIsread(openid, 1);
+    }
+
 
 }
