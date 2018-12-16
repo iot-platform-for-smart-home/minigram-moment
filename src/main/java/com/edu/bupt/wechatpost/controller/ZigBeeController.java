@@ -27,7 +27,7 @@ public class ZigBeeController {
 
     @RequestMapping(value = "/device/deleteDevice/{uuid}",method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteDevice(@PathVariable("uuid") String uuid)throws IOException {
+    public String deleteDevice(@PathVariable("uuid") String uuid){
         logger.info("Tring to delete device(s)...");
         // 查找IEEE地址
         String ieee = deviceTokenRelationService.findIEEEByUuid(uuid);
@@ -74,7 +74,7 @@ public class ZigBeeController {
 
     @RequestMapping(value = "/device/addNewDevice/{gateway_name}",method = RequestMethod.GET)
     @ResponseBody
-    public String addNewDevice(@PathVariable("gateway_name")String gateway_name)throws Exception{
+    public String addNewDevice(@PathVariable("gateway_name")String gateway_name){
         logger.info("permit devices join gateway...");
         String urlPrefix = URLPREDIX;
         urlPrefix = urlPrefix.replace("ip","47.104.8.164")
@@ -98,7 +98,7 @@ public class ZigBeeController {
 
     @RequestMapping(value = "/device/getSceneSelectorBind/{sceneId}",method = RequestMethod.GET)
     @ResponseBody
-    public String getSceneSelectorBind(@PathVariable("sceneId")String sceneId)throws Exception{
+    public String getSceneSelectorBind(@PathVariable("sceneId")String sceneId){
         logger.info("get scene selector bind...");
         String urlPrefix = URLPREDIX;
         urlPrefix = urlPrefix.replace("ip","47.104.8.164")
@@ -122,7 +122,7 @@ public class ZigBeeController {
 
     @RequestMapping(value = "/device/deleteSceneSelectorBind", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteSceneSelectorBind(@RequestBody String message)throws Exception{
+    public String deleteSceneSelectorBind(@RequestBody String message){
         logger.info("delete scene selector bind...");
         String urlPrefix = URLPREDIX;
         final MediaType JSON = MediaType.parse("application/json,text/plain; charset=utf-8");
@@ -148,7 +148,7 @@ public class ZigBeeController {
 
     @RequestMapping(value = "/device/sceneSelectorBindDevice", method = RequestMethod.POST)
     @ResponseBody
-    public String SceneSelectorBindDevice(@RequestBody String message)throws Exception{
+    public String SceneSelectorBindDevice(@RequestBody String message){
         logger.info("scene selector bind...");
         String urlPrefix = URLPREDIX;
         final MediaType JSON = MediaType.parse("application/json,text/plain;charset=utf-8");

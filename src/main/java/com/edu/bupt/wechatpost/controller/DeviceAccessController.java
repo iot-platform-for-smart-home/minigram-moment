@@ -25,77 +25,90 @@ public class DeviceAccessController {
 
     @RequestMapping(value = "/assignAll/{customerId}", method = RequestMethod.GET)
     @ResponseBody
-    public Integer assignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_user") String gateway_user)throws IOException{
+    public Integer assignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_user") String gateway_user){
         System.out.print("扫码分配设备：");
         Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + "assignAll/"+customerId+"?gateway_user="+gateway_user)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result+"\n");
-            return 1;
-        } else {
-            return 0;
+        try{
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()){
+                result = response.body().string();
+                System.out.println(result+"\n");
+                return 1;
+            }
+        } catch(IOException e){
+            e.printStackTrace();
         }
+        return 0;
     }
 
     @RequestMapping(value = "/unassign/{customerId}", method = RequestMethod.GET)
     @ResponseBody
-    public Integer unassignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_name") String gateway_name)throws IOException{
+    public Integer unassignGateway2User(@PathVariable("customerId")Integer customerId, @RequestParam("gateway_name") String gateway_name){
         System.out.println("\n解绑网关设备...");
         Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + "unassign/"+customerId+"?gateway_name="+gateway_name)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result+"\n");
-            return 1;
-        } else {
-            return 0;
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result + "\n");
+                return 1;
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
+        return 0;
     }
 
     @RequestMapping(value = "/device", method = RequestMethod.POST)
     @ResponseBody
-    public String createDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message) throws Exception{
+    public String createDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message) {
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, message.toJSONString());
         Request request = new Request.Builder()
                 .url(BASEURL + "device")
                 .post(body)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch(IOException e){
+            e.printStackTrace();
         }
         return result;
     }
 
     @RequestMapping(value = "/device/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getDeviceById(@PathVariable("deviceId")String deviceId)throws IOException{
+    public String getDeviceById(@PathVariable("deviceId")String deviceId){
         Result res = new Result();
         Request request = new Request.Builder()
                     .get()
                     .url(BASEURL + "device/"+deviceId)
                     .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
-        } else{
-            res.setStatus("error");
-            result = res.toString();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
+        res.setStatus("error");
+        result = res.toString();
         return result;
     }
 
@@ -105,7 +118,7 @@ public class DeviceAccessController {
                                        @RequestParam(value = "textSearch", required = false)String textSearch,
                                        @RequestParam(value = "idOffset", required = false)String idOffset,
                                        @RequestParam(value = "textOffset",required = false)String textOffset)
-            throws Exception{
+            {
         String url = "tenant/devices/" + tenantId + "?limit=" + limit;
         if (textSearch != null){
             url = url + "&textSearch=" + textSearch;
@@ -116,15 +129,19 @@ public class DeviceAccessController {
         if (textOffset != null){
             url = url + "&textOffset=" + textOffset;
         }
-            Request request = new Request.Builder()
+        Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + url)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -136,7 +153,7 @@ public class DeviceAccessController {
                                          @RequestParam(value = "textSearch", required = false)String textSearch,
                                           @RequestParam(value = "idOffset", required = false)String idOffset,
                                          @RequestParam(value = "textOffset",required = false)String textOffset)
-        throws Exception{
+        {
         String url = "customerdevices/" + tenantId + "/" + Customer + "?limit=" + limit;
         if (textSearch != null){
             url = url + "&textSearch=" + textSearch;
@@ -151,31 +168,39 @@ public class DeviceAccessController {
                 .get()
                 .url(BASEURL + url)
                 .build();
-        Response response = client.newCall(request).execute();
         Result res = new Result();
-        String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
-            return result;
-        }else{
-            res.setStatus("error");
-            return res.toString();
+        try {
+            Response response = client.newCall(request).execute();
+
+            String result = new String();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+                return result;
+            }
+        }catch (IOException e){
+            e.printStackTrace();
         }
+        res.setStatus("error");
+        return res.toString();
     }
 
     @RequestMapping(value = "/allattributes/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getAllAttributes(@PathVariable("deviceId") String deviceId) throws Exception{
+    public String getAllAttributes(@PathVariable("deviceId") String deviceId) {
         Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + "allattributes/" + deviceId)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        }catch(IOException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -183,68 +208,84 @@ public class DeviceAccessController {
     @RequestMapping(value = "/data/alldata/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
     public String getAllData(@PathVariable("deviceId") String deviceId, String key, String startTs,
-                             String endTs, Integer limit, Integer interval, String aggregation) throws  Exception{
+                             String endTs, Integer limit, Integer interval, String aggregation){
         String url = "data/alldata/" + deviceId + "?key=" + key + "&startTs=" + startTs + "&endTs="
                 + endTs + "&limit=" + limit + "&interval=" + interval + "&aggregation=" + aggregation;
         Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + url)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        }catch(IOException e){
+            e.printStackTrace();
         }
         return result;
     }
 
     @RequestMapping(value = "/data/alllatestdata/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
-    public String getlatestData(String deviceId) throws Exception{
+    public String getlatestData(@PathVariable("deviceId") String deviceId) {
         Request request = new Request.Builder()
                 .get()
                 .url(BASEURL + "data/alllatestdata/" + deviceId)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        }catch(IOException e){
+            e.printStackTrace();
         }
         return result;
     }
 
     @RequestMapping(value = "/group", method = RequestMethod.POST)
     @ResponseBody
-    public String saveGroup(@org.springframework.web.bind.annotation.RequestBody JSONObject Group) throws Exception{
+    public String saveGroup(@org.springframework.web.bind.annotation.RequestBody JSONObject Group) {
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, Group.toJSONString());
         Request request = new Request.Builder()
                 .url(BASEURL + "group")
                 .post(body)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
-         return result;
+        return result;
     }
 
     @RequestMapping(value = "/group/{groupId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String deleteDevice(@PathVariable("groupId") String groupId)throws Exception{
+    public String deleteDevice(@PathVariable("groupId") String groupId){
         Request request = new Request.Builder()
                 .url(BASEURL + "group/" + groupId)
                 .delete()
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -255,7 +296,7 @@ public class DeviceAccessController {
                                          @RequestParam(value = "textSearch", required = false)String textSearch,
                                          @RequestParam(value = "idOffset", required = false)String idOffset,
                                          @RequestParam(value = "textOffset",required = false)String textOffset)
-            throws Exception{
+            {
         String url = "group/devices/" + groupId + "?limit=" + limit;
         if (textSearch != null){
             url = url + "&textSearch=" + textSearch;
@@ -270,46 +311,55 @@ public class DeviceAccessController {
                 .url(BASEURL + url)
                 .get()
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
-        }
-        if(result == ""){
-            result = "[]";
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
 
     @RequestMapping(value = "/assign/group/{groupId}/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
-    public String assignDeviceToGroup(@PathVariable("deviceId") String deviceId, @PathVariable("groupId") String GroupId) throws Exception{
+    public String assignDeviceToGroup(@PathVariable("deviceId") String deviceId, @PathVariable("groupId") String GroupId) {
         Request request = new Request.Builder()
                 .url(BASEURL + "assign/group/" + GroupId + "/"+ deviceId)
                 .get()
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
 
     @RequestMapping(value = "/unassign/group/{groupId}/{deviceId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public String cancelAssignDeviceToGroup(@PathVariable("groupId") String GroupId, @PathVariable("deviceId") String deviceId) throws Exception{
+    public String cancelAssignDeviceToGroup(@PathVariable("groupId") String GroupId, @PathVariable("deviceId") String deviceId) {
         Request request = new Request.Builder()
                 .url(BASEURL + "unassign/group/"+ GroupId + "/"+ deviceId)
                 .delete()
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch(IOException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -320,7 +370,7 @@ public class DeviceAccessController {
                                       @RequestParam(value = "textSearch", required = false)String textSearch,
                                       @RequestParam(value = "idOffset", required = false)String idOffset,
                                       @RequestParam(value = "textOffset",required = false)String textOffset)
-        throws Exception{
+        {
         String url = "groups/customer/" + customerId + "?limit=" + limit;
         if (textSearch != null){
             url = url + "&textSearch=" + textSearch;
@@ -335,11 +385,15 @@ public class DeviceAccessController {
                 .url(BASEURL + url)
                 .get()
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -349,23 +403,22 @@ public class DeviceAccessController {
     public String controlDevice(@org.springframework.web.bind.annotation.RequestBody JSONObject message,
                                     @PathVariable("deviceId")String deviceId,
                                     @PathVariable("requestId")Integer requestId)
-            throws Exception{
+            {
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, message.toJSONString());
         Request request = new Request.Builder()
                 .url(BASEURL + "rpc/"+ deviceId + "/" + requestId)
                 .post(body)
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println("result=" + result);
-        }
-        if(result ==""){
-            Result resultJson = new Result();
-            resultJson.setStatus("success");
-            return resultJson.toString();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println("result=" + result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -376,7 +429,7 @@ public class DeviceAccessController {
                                     @RequestParam(value = "textSearch", required = false)String textSearch,
                                     @RequestParam(value = "idOffset", required = false)String idOffset,
                                     @RequestParam(value = "textOffset",required = false)String textOffset)
-            throws Exception{
+            {
         String url = "parentdevices/" + parentdeviceId + "?limit=" + limit;
         if (textSearch != null){
             url = url + "&textSearch=" + textSearch;
@@ -391,11 +444,15 @@ public class DeviceAccessController {
                 .url(BASEURL + url)
                 .get()
                 .build();
-        Response response = client.newCall(request).execute();
         String result = new String();
-        if(response.isSuccessful()){
-            result = response.body().string();
-            System.out.println(result);
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return result;
     }
