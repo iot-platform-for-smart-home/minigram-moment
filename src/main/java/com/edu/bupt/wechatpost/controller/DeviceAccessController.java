@@ -1,7 +1,6 @@
 package com.edu.bupt.wechatpost.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.edu.bupt.wechatpost.model.Result;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -92,7 +91,6 @@ public class DeviceAccessController {
     @RequestMapping(value = "/device/{deviceId}", method = RequestMethod.GET)
     @ResponseBody
     public String getDeviceById(@PathVariable("deviceId")String deviceId){
-        Result res = new Result();
         Request request = new Request.Builder()
                     .get()
                     .url(BASEURL + "device/"+deviceId)
@@ -107,8 +105,6 @@ public class DeviceAccessController {
         } catch (IOException e){
             e.printStackTrace();
         }
-        res.setStatus("error");
-        result = res.toString();
         return result;
     }
 
@@ -168,11 +164,9 @@ public class DeviceAccessController {
                 .get()
                 .url(BASEURL + url)
                 .build();
-        Result res = new Result();
+        String result = new String();
         try {
             Response response = client.newCall(request).execute();
-
-            String result = new String();
             if (response.isSuccessful()) {
                 result = response.body().string();
                 System.out.println(result);
@@ -181,8 +175,7 @@ public class DeviceAccessController {
         }catch (IOException e){
             e.printStackTrace();
         }
-        res.setStatus("error");
-        return res.toString();
+        return result;
     }
 
     @RequestMapping(value = "/allattributes/{deviceId}", method = RequestMethod.GET)

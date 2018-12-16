@@ -126,8 +126,6 @@ public class AccountController {
         return result;
     }
 
-
-
     @RequestMapping(value = "/getBinderGates", method = RequestMethod.POST)
     @ResponseBody
     public String getBinderGates(@RequestBody JSONObject message){

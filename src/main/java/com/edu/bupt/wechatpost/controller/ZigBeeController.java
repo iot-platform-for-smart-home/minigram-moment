@@ -2,7 +2,6 @@ package com.edu.bupt.wechatpost.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.service.DeviceTokenRelationService;
-import com.google.gson.JsonObject;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -68,7 +67,7 @@ public class ZigBeeController {
         }catch (Exception e) {
             e.printStackTrace();
         }
-        logger.warn("Error occurs in deleting records in Mysql!");
+        System.out.println("Error occurs in deleting records in Mysql!");
         return "fail";
     }
 
@@ -90,7 +89,7 @@ public class ZigBeeController {
                 result = response.body().string();
             }
         }catch(Exception e){
-            logger.warn("Call permitDeviceJoinGateway thor!");
+            System.out.println("Call permitDeviceJoinGateway thor!");
             e.printStackTrace();
         }
         return result;
@@ -114,7 +113,7 @@ public class ZigBeeController {
                 result = response.body().string();
             }
         }catch(Exception e){
-            logger.warn("Error!");
+            System.out.println("Error!");
             e.printStackTrace();
         }
         return result;
@@ -140,7 +139,7 @@ public class ZigBeeController {
                 result = response.body().string();
             }
         }catch(Exception e){
-            logger.warn("Error!");
+            System.out.println("Error!");
             e.printStackTrace();
         }
         return result;
@@ -166,7 +165,7 @@ public class ZigBeeController {
                 result = response.body().string();
             }
         }catch(Exception e){
-            logger.warn("Error!");
+            System.out.println("Error!");
             e.printStackTrace();
         }
         return result;
