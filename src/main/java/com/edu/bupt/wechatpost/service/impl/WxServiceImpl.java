@@ -44,21 +44,32 @@ public class WxServiceImpl implements WxService {
                 .replace("JSCODE",JSCODE);
         try {
             String returnvalue = GET(url);
-            System.out.println(url); // 打印发起请求的url
-            System.out.println(returnvalue); // 打印调用GET方法返回值
+            System.out.println(String.format("Request url = %s",url)); // 打印发起请求的url
+            System.out.println(String.format("Response body = %s", returnvalue)); // 打印调用GET方法返回值
             JSONObject convertvalue = (JSONObject) JSONObject.parse(returnvalue);   // 将得到的字符串转换为json
             String unionid = convertvalue.getString("unionid");
             String openid = convertvalue.getString("openid");
-            if( null != unionid){
-                if(null == authMapper.selectByUnionid(unionid)){
-                    authMapper.insertSelective(new Auth(unionid, openid, null));
+            try {
+                // 更新数据库小程序openid和公众号openid对应关系
+                if (null != unionid) {
+                    Auth user = authMapper.selectByUnionid(unionid);
+                    System.out.println(user.toString());
+                    if (null == user) {  // 不存在该unionid则新添加
+                        authMapper.insertSelective(new Auth(unionid, openid, "")); //TODO: null和空字符，服务器上版本未更改
+                    } else { // 存在该unionid
+                        String miniopenid_temp = user.getMini_openid();
+                        if (null == miniopenid_temp || "".equals(miniopenid_temp)) {
+                            authMapper.updateMiniOpenid(unionid, openid);
+                        }
+                    }
                 }
+            } catch(NullPointerException e){
+                System.out.println("Auth operation fail: 对表Auth操作失败！");
+                e.printStackTrace();
             }
-
-
             return convertvalue.toJSONString();
-        } catch (IOException e){
-            System.out.println("========== ERROR:获取openid失败");
+        } catch (IOException e) {
+            System.out.println("GET openid fail:获取openid失败");
             e.printStackTrace();
             return "error!";
         }
@@ -68,15 +79,17 @@ public class WxServiceImpl implements WxService {
         System.out.println("whether user followed officecial account");
         String unionid = message.getString("unionid");
         String openid = message.getString("openid");
-        if(! "".equals(unionid)){
+        if(null != unionid && !"".equals(unionid)){ // unionid 不为空
             Auth user = authMapper.selectByUnionid(unionid);
-            if (user != null) { // 用户存在
-                if(user.getMini_openid() == null){
+            if (user != null) {  // 用户存在
+                String mini_openid = user.getMini_openid();
+                if( null == mini_openid || "".equals(mini_openid)){
                     authMapper.updateMiniOpenid(unionid, openid);
                 }
-                if (user.getOa_openid() != null){  // 用户已关注微信公众号
+                String oa_openid = user.getOa_openid();
+                if ( null != oa_openid && !"".equals(oa_openid)){  // 用户已关注微信公众号
                     return 1; // followed
-                } else {
+                } else {  // 更新数据库确认是否关注公众号
                     okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
                     okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
                     try {
