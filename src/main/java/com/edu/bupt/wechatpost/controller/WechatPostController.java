@@ -10,7 +10,10 @@ import com.edu.bupt.wechatpost.service.PostCommentService;
 import com.edu.bupt.wechatpost.service.WxService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +26,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/wechatPost")
 public class WechatPostController {
-
     @Autowired
     private PostCommentService postCommentService;
 
@@ -282,12 +284,6 @@ public class WechatPostController {
         }
     }
 
-      /* 将该接口放在了wechatPlugin里  */
-//    @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET)
-//    @ResponseBody
-//    public void getAllUsers(String access_token){
-//        wxService.get_and_insert_users(access_token);
-//    }
 
 
     @RequestMapping(value = "/getAllTips/{openid}", method = RequestMethod.GET)
@@ -309,4 +305,5 @@ public class WechatPostController {
     public void readTips(@PathVariable("openid")String openid){
         wxService.readTips(openid);
     }
+
 }

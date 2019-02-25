@@ -8,6 +8,7 @@ import com.edu.bupt.wechatpost.dao.MomentTipMapper;
 import com.edu.bupt.wechatpost.dao.PostCommentMapper;
 import com.edu.bupt.wechatpost.model.*;
 import com.edu.bupt.wechatpost.service.WxService;
+import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,41 +39,82 @@ public class WxServiceImpl implements WxService {
         final String JSCODE = message.getString("JSCODE");
         final String appid = "wx9e12afc5dec75b6f";
         final String secret = "d0d7b3d2ab48530710a4828003dd1c05";
+        String unionid = null;
+        String returnvalue = "";
+
+        // 获取 openid (和 unionid)
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type='authorization_code'"
                 .replace("APPID",appid)
                 .replace("SECRET",secret)
                 .replace("JSCODE",JSCODE);
         try {
-            String returnvalue = GET(url);
-            System.out.println(String.format("Request url = %s",url)); // 打印发起请求的url
-            System.out.println(String.format("Response body = %s", returnvalue)); // 打印调用GET方法返回值
-            JSONObject convertvalue = (JSONObject) JSONObject.parse(returnvalue);   // 将得到的字符串转换为json
-            String unionid = convertvalue.getString("unionid");
-            String openid = convertvalue.getString("openid");
-            try {
-                // 更新数据库小程序openid和公众号openid对应关系
-                if (null != unionid) {
-                    Auth user = authMapper.selectByUnionid(unionid);
-                    System.out.println(user.toString());
-                    if (null == user) {  // 不存在该unionid则新添加
-                        authMapper.insertSelective(new Auth(unionid, openid, "")); //TODO: null和空字符，服务器上版本未更改
-                    } else { // 存在该unionid
-                        String miniopenid_temp = user.getMini_openid();
-                        if (null == miniopenid_temp || "".equals(miniopenid_temp)) {
-                            authMapper.updateMiniOpenid(unionid, openid);
-                        }
-                    }
-                }
-            } catch(NullPointerException e){
-                System.out.println("Auth operation fail: 对表Auth操作失败！");
-                e.printStackTrace();
-            }
-            return convertvalue.toJSONString();
+            returnvalue = GET(url);
         } catch (IOException e) {
-            System.out.println("GET openid fail:获取openid失败");
+            System.out.println("ERROR : 请求失败");
             e.printStackTrace();
             return "error!";
         }
+
+        // 更新小程序和公众号 openid 对照表
+        if (!returnvalue.equals("")) {
+            System.out.println(String.format("请求成功，返回值为 : %s", returnvalue)); // 打印调用GET方法返回值
+
+            // 解析返回结果
+            JSONObject convertvalue = (JSONObject) JSONObject.parse(returnvalue);
+            String openid = convertvalue.getString("openid");
+            try {
+                unionid = convertvalue.getString("unionid");
+            } catch (NullPointerException e) {
+                System.out.println(" NOTE : unionid 为空，用户未关注公众号,将无法收到报警消息");
+            }
+
+            // 若微信服务器返回 unionid 不为空， 向 auth 表插入 unionid 和小程序 openid
+            if (null != unionid) {
+                // 查找数据库是否已存在该 unionid 的对应关系
+                Auth user = authMapper.selectByUnionid(unionid);
+                if (null == user) {  // 数据库不存在该记录
+                    // 插入 unionid 和小程序 openid
+                    authMapper.insertSelective(new Auth(unionid, openid, ""));
+
+                    // RPC 调用更新公众号 openid
+                    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+                    okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
+                    try {
+                        okhttp3.Response res = client.newCall(request).execute();
+                    } catch (IOException e) {
+                        System.out.println("公众号更新关注用户失败");
+                        e.printStackTrace();
+                    }
+                } else {  // 数据库存在该记录
+                    // 小程序 openid 为空则插入
+                    String miniopenid_temp = user.getMini_openid();
+                    if (null == miniopenid_temp || "".equals(miniopenid_temp)) {
+                        authMapper.updateMiniOpenid(unionid, openid);
+                    }
+
+                    // 公众号 openid 为空则更新关注用户列表
+                    String oaopenid_temp = user.getOa_openid();
+                    if (null == oaopenid_temp || "".equals(oaopenid_temp)) {
+                        // RPC 调用更新公众号 openid
+                        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+                        okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
+                        try {
+                            okhttp3.Response res = client.newCall(request).execute();
+                        } catch (IOException e) {
+                            System.out.println("公众号更新关注用户失败");
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            return convertvalue.toJSONString();
+
+        }else {
+            System.out.println("ERROR : 微信服务器返回数据为空!");
+            return "error!";
+        }
+
     }
 
     public int follow(JSONObject message) {
@@ -95,7 +137,7 @@ public class WxServiceImpl implements WxService {
                     try {
                         okhttp3.Response res = client.newCall(request).execute();
                         if (res.isSuccessful()){
-                            if(res.body().string() != "-1"){
+                            if(res.body().string() != "-1"){  // 更新失败则返回 -1
                                 if(null != authMapper.selectOAByUnionid(unionid))
                                     return 1;
                             }
@@ -262,13 +304,13 @@ public class WxServiceImpl implements WxService {
             json.put("createTime", format.format(tip.getCreateTime()));
             json.put("avator", tip.getAvator());
             json.put("isread", tip.getIsread());
-//            json.put("type",tip.getAction_type());
             Integer id = tip.getAction_id();
             switch (tip.getAction_type()){
                 case 1: // LIKE
                      LikeRelation relation = likeMapper.selectById(id);
                      if (null != relation){
                          json.put("nickname", relation.getNickname());
+                         json.put("p_id", relation.getP_id());
                          Post post = postCommentMapper.selectPostById(relation.getP_id());
                          if (null != post) {
                              json.put("p_content", post.getpContent());
@@ -281,6 +323,7 @@ public class WxServiceImpl implements WxService {
                     if(null != comment) {
                         json.put("c_content", comment.getcContent());
                         json.put("nickname", comment.getNickName());
+                        json.put("p_id", comment.getpId());
                         Post post = postCommentMapper.selectPostById(comment.getpId());
                         if (null != post) {
                             json.put("p_content", post.getpContent());
@@ -313,6 +356,7 @@ public class WxServiceImpl implements WxService {
                     LikeRelation relation = likeMapper.selectById(id);
                     if (null != relation){
                         json.put("nickname", relation.getNickname());
+                        json.put("p_id", relation.getP_id());
                         Post post = postCommentMapper.selectPostById(relation.getP_id());
                         if (null != post) {
                             json.put("p_content", post.getpContent());
@@ -325,6 +369,7 @@ public class WxServiceImpl implements WxService {
                     if(null != comment) {
                         json.put("c_content", comment.getcContent());
                         json.put("nickname", comment.getNickName());
+                        json.put("p_id", comment.getpId());
                         Post post = postCommentMapper.selectPostById(comment.getpId());
                         if (null != post) {
                             json.put("p_content", post.getpContent());
@@ -344,6 +389,5 @@ public class WxServiceImpl implements WxService {
     public void readTips(String openid) {
         tipMapper.updateIsread(openid, 1);
     }
-
 
 }

@@ -19,6 +19,7 @@ public class AccountController {
     @RequestMapping(value = "/createUser", method = RequestMethod.POST)
     @ResponseBody
     public String createUser(@RequestBody JSONObject message){
+        System.out.println("===============  account: create user   +++++++++++++++++");
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, message.toJSONString());
         Request request = new Request.Builder()
@@ -41,6 +42,7 @@ public class AccountController {
     @RequestMapping(value = "/userLogin", method = RequestMethod.POST)
     @ResponseBody
     public String userLogin(@RequestBody JSONObject message){
+        System.out.println("===============  account: login   +++++++++++++++++");
         final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         okhttp3.RequestBody body = okhttp3.RequestBody.create(JSON, message.toJSONString());
         Request request = new Request.Builder()
