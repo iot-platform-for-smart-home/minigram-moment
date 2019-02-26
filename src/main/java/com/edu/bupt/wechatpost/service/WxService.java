@@ -3,6 +3,7 @@ package com.edu.bupt.wechatpost.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.edu.bupt.wechatpost.model.LikeRelation;
+import okhttp3.Request;
 
 public interface WxService {
     String getOpenId(JSONObject message);
@@ -18,5 +19,8 @@ public interface WxService {
     JSONArray getTips(String openid);
     JSONArray getUnreadTips(String openid);
     void readTips(String openid);
-
+    void ExecuteAsyn(Request request, final ResultCallBack callBack);
+    interface ResultCallBack{
+        void onCallBack(String result);
+    }
 }

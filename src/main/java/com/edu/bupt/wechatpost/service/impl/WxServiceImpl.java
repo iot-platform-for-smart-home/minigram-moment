@@ -8,7 +8,10 @@ import com.edu.bupt.wechatpost.dao.MomentTipMapper;
 import com.edu.bupt.wechatpost.dao.PostCommentMapper;
 import com.edu.bupt.wechatpost.model.*;
 import com.edu.bupt.wechatpost.service.WxService;
-import org.apache.ibatis.jdbc.Null;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class WxServiceImpl implements WxService {
+public class WxServiceImpl implements WxService{
     @Autowired
     private AuthMapper authMapper;
 
@@ -35,10 +38,29 @@ public class WxServiceImpl implements WxService {
     @Autowired
     private PostCommentMapper postCommentMapper;
 
+    private okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+
+    private static ResultCallBack defaultResultCallback = new ResultCallBack() {
+        @Override
+        public void onCallBack(String result) {
+            System.out.println("由于未定义ResultCallback参数,以下信息未被处理" +
+                    "\tresult:" + result);
+        }
+    };
+
+
+    /**
+     * 向微信服务器申请 openid，并根据unionid建立小程序和公众号对应表
+     * @param message （小程序前端的 JSCODE）
+     * @return
+     */
     public String getOpenId(JSONObject message) {
         final String JSCODE = message.getString("JSCODE");
+
+        // 小程序管理后台开发者配置参数
         final String appid = "wx9e12afc5dec75b6f";
         final String secret = "d0d7b3d2ab48530710a4828003dd1c05";
+
         String unionid = null;
         String returnvalue = "";
 
@@ -76,15 +98,22 @@ public class WxServiceImpl implements WxService {
                     // 插入 unionid 和小程序 openid
                     authMapper.insertSelective(new Auth(unionid, openid, ""));
 
-                    // RPC 调用更新公众号 openid
-                    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+                    // RPC 调用 wechatplugin 插件的函数，更新公众号 openid 列表 (Auth)
                     okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
-                    try {
-                        okhttp3.Response res = client.newCall(request).execute();
-                    } catch (IOException e) {
-                        System.out.println("公众号更新关注用户失败");
-                        e.printStackTrace();
-                    }
+                    WxService.ResultCallBack callback = new ResultCallBack() {
+                        @Override
+                        public void onCallBack(String result) {
+                            System.out.println("公众号关注用户列表更新成功");
+                        }
+                    };
+                    ExecuteAsyn(request, callback);
+//                    try {
+//                        okhttp3.Response res = client.newCall(request).execute();
+//                    } catch (IOException e) {
+//                        System.out.println("公众号更新关注用户失败");
+//                        e.printStackTrace();
+//                    }
+
                 } else {  // 数据库存在该记录
                     // 小程序 openid 为空则插入
                     String miniopenid_temp = user.getMini_openid();
@@ -96,14 +125,20 @@ public class WxServiceImpl implements WxService {
                     String oaopenid_temp = user.getOa_openid();
                     if (null == oaopenid_temp || "".equals(oaopenid_temp)) {
                         // RPC 调用更新公众号 openid
-                        okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
                         okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
-                        try {
-                            okhttp3.Response res = client.newCall(request).execute();
-                        } catch (IOException e) {
-                            System.out.println("公众号更新关注用户失败");
-                            e.printStackTrace();
-                        }
+                        WxService.ResultCallBack callback = new ResultCallBack() {
+                            @Override
+                            public void onCallBack(String result) {
+                                System.out.println("公众号关注用户列表更新成功");
+                            }
+                        };
+                        ExecuteAsyn(request, callback);
+//                        try {
+//                            okhttp3.Response res = client.newCall(request).execute();
+//                        } catch (IOException e) {
+//                            System.out.println("公众号更新关注用户失败");
+//                            e.printStackTrace();
+//                        }
                     }
                 }
             }
@@ -117,44 +152,66 @@ public class WxServiceImpl implements WxService {
 
     }
 
+    /**
+     * 判断用户是否关注公众号
+     * @param message
+     * @return
+     */
     public int follow(JSONObject message) {
-        System.out.println("whether user followed officecial account");
+        // 解析 json 数据
         String unionid = message.getString("unionid");
         String openid = message.getString("openid");
-        if(null != unionid && !"".equals(unionid)){ // unionid 不为空
+
+        System.out.print("用户是否关注公众号 ==> ");
+        if(null != unionid && !"".equals(unionid)) {
             Auth user = authMapper.selectByUnionid(unionid);
-            if (user != null) {  // 用户存在
+            if (null != user) {
+                // 公众号和小程序 openid 存在对应关系
                 String mini_openid = user.getMini_openid();
-                if( null == mini_openid || "".equals(mini_openid)){
-                    authMapper.updateMiniOpenid(unionid, openid);
-                }
                 String oa_openid = user.getOa_openid();
-                if ( null != oa_openid && !"".equals(oa_openid)){  // 用户已关注微信公众号
-                    return 1; // followed
-                } else {  // 更新数据库确认是否关注公众号
-                    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
-                    okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
-                    try {
-                        okhttp3.Response res = client.newCall(request).execute();
-                        if (res.isSuccessful()){
-                            if(res.body().string() != "-1"){  // 更新失败则返回 -1
-                                if(null != authMapper.selectOAByUnionid(unionid))
-                                    return 1;
-                            }
-                        }
-                    } catch (IOException e){
-                        e.printStackTrace();
-                    }
-                    return 0; // unregiste
+                if ( null != mini_openid && !("".equals(mini_openid)) && null != oa_openid && !("".equals(oa_openid)) ){
+                    System.out.println("已关注");
+                    return 1;
                 }
-            } else {
-                user.setUnionid(unionid);
-                user.setMini_openid(openid);
-                authMapper.insertSelective(user); // 未发现该用户，插入新纪录
-                return 0;  // empty
             }
         }
-        return -1; // unionid is null  unionid为空，检查配置
+        System.out.println("未关注");
+        return 0;
+
+//        if(null != unionid && !"".equals(unionid)){ // unionid 不为空
+//            Auth user = authMapper.selectByUnionid(unionid);
+//            if (user != null) {  // 用户存在
+//                String mini_openid = user.getMini_openid();
+//                if( null == mini_openid || "".equals(mini_openid)){
+//                    authMapper.updateMiniOpenid(unionid, openid);
+//                }
+//                String oa_openid = user.getOa_openid();
+//                if ( null != oa_openid && !"".equals(oa_openid)){  // 用户已关注微信公众号
+//                    return 1; // followed
+//                } else {  // 更新数据库确认是否关注公众号
+//                    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+//                    okhttp3.Request request = new okhttp3.Request.Builder().url("http://47.105.120.203:30080/api/v1/wechatplugin/getAllUsers").get().build();
+//                    try {
+//                        okhttp3.Response res = client.newCall(request).execute();
+//                        if (res.isSuccessful()){
+//                            if(res.body().string() != "-1"){  // 更新失败则返回 -1
+//                                if(null != authMapper.selectOAByUnionid(unionid))
+//                                    return 1;
+//                            }
+//                        }
+//                    } catch (IOException e){
+//                        e.printStackTrace();
+//                    }
+//                    return 0; // unregiste
+//                }
+//            } else {
+//                user.setUnionid(unionid);
+//                user.setMini_openid(openid);
+//                authMapper.insertSelective(user); // 未发现该用户，插入新纪录
+//                return 0;  // empty
+//            }
+//        }
+
     }
 
     public String GET(String url) throws IOException {
@@ -388,6 +445,26 @@ public class WxServiceImpl implements WxService {
 
     public void readTips(String openid) {
         tipMapper.updateIsread(openid, 1);
+    }
+
+    public void ExecuteAsyn(Request request, WxService.ResultCallBack callback) {
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onCallBack("公众号列表更新失败");
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onCallBack("公众号列表更新成功");
+                } else {
+                    callback.onCallBack(Integer.toString(response.code()));
+                }
+            }
+        });
+
     }
 
 }
