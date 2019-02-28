@@ -108,6 +108,29 @@ public class DeviceAccessController {
         return result;
     }
 
+    @RequestMapping(value = "/device/status/{tenantId}", method = RequestMethod.POST)
+    @ResponseBody
+    public String getDeviceStatus(@org.springframework.web.bind.annotation.RequestBody JSONObject message,
+                                @PathVariable("tenantId")String tenantId){
+        final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, message.toJSONString());
+        Request request = new Request.Builder()
+                .post(body)
+                .url(BASEURL + "device/status/" + tenantId)
+                .build();
+        String result = new String();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                result = response.body().string();
+                System.out.println(result);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     @RequestMapping(value = "/tenant/devices/{tenantId}", method = RequestMethod.GET)
     @ResponseBody
     public String getTenantdevices(@PathVariable("tenantId") Integer tenantId, Integer limit,
